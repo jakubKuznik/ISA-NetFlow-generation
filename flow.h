@@ -25,6 +25,7 @@
 #include <netinet/udp.h>
 
 #include "args.h"
+#include "flow.h"
 
 /* Default program settings */
 #define DEFAULT_PORT 2055
@@ -47,9 +48,9 @@ struct set{
     FILE *inputFile;            // input file if NULL we will use STDIN 
     uint32_t collectorIp;       // netflow collector ip address 
     uint16_t collectorPort;     // netflow collector ip address 
-    unsigned int timerActive;   // timmer in sec 
-    unsigned int cacheSize;     // 
-    unsigned int interval;      // after end non-active flows will be 
+    uint32_t timerActive;       // timmer in sec 
+    uint32_t cacheSize;         // 
+    uint32_t interval;          // after end non-active flows will be 
                                 // exported to collector 
 };
 

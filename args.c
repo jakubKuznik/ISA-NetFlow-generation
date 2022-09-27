@@ -13,12 +13,14 @@
  * @param argv args array
  * @param settings struct with all the program settings  
  */
-set parseArgs(int argc, char *argv[]) {
+struct set parseArgs(int argc, char *argv[]) {
     set setNew;
     setNew = defaultSettings();
+    bool retBool;
 
     fprintf(stderr, "%d %s", argc, argv[0]);
     for (int i=1; i < argc; i++){
+        fprintf(stderr, ",,,%s,,,",argv[i]);
         // help message 
         if ((strcmp(argv[i], "-h") == 0 ) || (strcmp(argv[i], "--help") == 0)) {
             printHelp();
@@ -29,20 +31,34 @@ set parseArgs(int argc, char *argv[]) {
             setNew.inputFile = fopen(argv[i], "r");
             if (setNew.inputFile == NULL)
                 goto error2;
-            printf("....i %d argc %d....",i,argc);
-            printf("-f\n");
         } // -c
         else if (strcmp(argv[i], "-c") == 0){
             printf("-c\n");
         } // -a 
         else if (strcmp(argv[i], "-a") == 0){
-            printf("-a\n");
+            if (++i >= argc)
+                goto error3;
+
+            retBool = parseNumUINT32(argv[i], &setNew.timerActive);
+            if (retBool == false)
+                goto error4;
         } // -i
         else if (strcmp(argv[i], "-i") == 0){
-            printf("-i\n");
+            if (++i >= argc)
+                goto error3;
+
+            retBool = parseNumUINT32(argv[i], &setNew.interval);
+            if (retBool == false)
+                goto error4;
+
         } // -m
         else if (strcmp(argv[i], "-m") == 0){
-            printf("-m\n");
+            if (++i >= argc)
+                goto error3;
+
+            retBool = parseNumUINT32(argv[i], &setNew.cacheSize);
+            if (retBool == false)
+                goto error4;
         } 
         else{
             fprintf(stderr, "\nERROR: invalid parrameter %s\n",argv[i]);
@@ -60,7 +76,63 @@ error1:
 error2:
     fprintf(stderr, "\nERROR: Can't open input file\n");
     exit(1);
+error3:
+    fprintf(stderr, "\nERROR: missing time after -i\n");
+    closeFile(setNew.inputFile);
+    exit(1);
+error4:
+    fprintf(stderr, "\nERROR: not a valid number\n");
+    closeFile(setNew.inputFile);
+    exit(1);
 
+
+
+}
+
+/**
+ * @brief parse string to UINT16. using strtol
+ * 
+ * @return false if not sucesfull
+ */
+bool parseNumUINT16(char *s, uint16_t *out){
+    char *temp;
+    long number; 
+
+    number = strtol(s, &temp, 10);
+    if (*s != '\0' && *temp == '\0'){ // valid strtol
+        if (number > UINT16_MAX || number < 0){
+            return false;
+        }
+        else{
+            *out = (u_int16_t) number;
+            return true;
+        }
+    } 
+
+    return false;
+}
+
+/**
+ * @brief parse string to UINT32. using strtol
+ * 
+ * @return false if not sucesfull
+ */
+bool parseNumUINT32(char *s, uint32_t *out){
+    char *temp;
+    long number; 
+    
+
+    number = strtol(s, &temp, 10);
+    if (*s != '\0' && *temp == '\0'){ // valid strtol
+        if (number > UINT32_MAX || number < 0){
+            return false;
+        }
+        else{
+            *out = (u_int32_t) number;
+            return true;
+        }
+    } 
+    return false;
 }
 
 /**

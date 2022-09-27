@@ -40,13 +40,14 @@ int main(int argc, char *argv[]) {
  * -m flow cache    [DEFAULT 1024] {cacheSize}
  */
 set defaultSettings(){
-    settings.inputFile      = NULL;
-    settings.collectorIp    = DEFAULT_IP;
-    settings.collectorPort  = DEFAULT_PORT;
-    settings.timerActive    = DEFAULT_TIMER;
-    settings.interval       = DEFAULT_INTERVAL;
-    settings.cacheSize      = DEFAULT_CACHE;
-    
+    set setNew;
+    setNew.inputFile      = NULL;
+    setNew.collectorIp    = DEFAULT_IP;
+    setNew.collectorPort  = DEFAULT_PORT;
+    setNew.timerActive    = DEFAULT_TIMER;
+    setNew.interval       = DEFAULT_INTERVAL;
+    setNew.cacheSize      = DEFAULT_CACHE;
+    return setNew;
 }
 
 //TODO delete 
