@@ -26,4 +26,52 @@
 
 #include "args.h"
 
+/* Default program settings */
+#define DEFAULT_PORT 2055
+#define DEFAULT_IP 1270001
+#define DEFAULT_TIMER 60
+#define DEFAULT_INTERVAL 10
+#define DEFAULT_CACHE 1024
+
+
+/**
+ * @brief set default program settings in global var. settings 
+ * -f input file    [DEFAULT NULL (STDIN)] {p}
+ * -c collector ip  [DEFAULT 127.0.0.1:2055] {collectorIp}
+ * -a acctive timer [DEFAULT 60s] {timerActive}
+ * -i interval      [DEFAULT 10s] {interval}
+ * -m flow cache    [DEFAULT 1024] {cacheSize}
+ */
+void defaultSettings();
+
+//TODO delete 
+void debugStruct();
+
+
+
+/**
+ * @brief Settings struct for the program 
+ * 
+ * -f input file    [DEFAULT NULL (STDIN)] {inputFile}
+ * -c collector ip  [DEFAULT 127.0.0.1:2055] {collectorIp, collectorPort}
+ * -a acctive timer [DEFAULT 60s] {timerActive}
+ * -i interval      [DEFAULT 10s] {interval}
+ * -m flow cache    [DEFAULT 1024] {cacheSize}
+ */
+struct set{
+    //TODO ASSIGN DEFAULT VALUES 
+    FILE *inputFile;            // input file if NULL we will use STDIN 
+    uint32_t collectorIp;       // netflow collector ip address 
+    uint16_t collectorPort;     // netflow collector ip address 
+    unsigned int timerActive;   // timmer in sec 
+    unsigned int cacheSize;     // 
+    unsigned int interval;      // after end non-active flows will be 
+                                // exported to collector 
+};
+
+typedef struct set set;
+
+
+
+
   

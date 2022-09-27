@@ -7,3 +7,6 @@
 #pragma once
 
 #include "flow.h"
+
+
+void parseArgs(int argc, char *argv[]);

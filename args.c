@@ -6,3 +6,16 @@
 
 #include "args.h"
 
+/**
+ * @brief Parse arguments and set settings variable 
+ * 
+ * @param argc agrs sum
+ * @param argv args array 
+ */
+void parseArgs(int argc, char *argv[]) {
+    fprintf(stderr, "%d %s", argc, argv[0]);
+    for (int i=0; i < argc; i++){
+        fprintf(stderr, "%s\n",argv[i]);
+    }
+
+}

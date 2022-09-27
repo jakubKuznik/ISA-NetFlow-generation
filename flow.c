@@ -5,13 +5,56 @@
 // Read file arguments 
 
 // Execution:
-// ./ipk-sniffer [-i rozhraní | --interface rozhraní] {-p ­­port} 
-//               {[--tcp|-t] [--udp|-u] [--arp] [--icmp] } {-n num}
+// ./flow [-f <file>] [-c <netflow_collector>[:<port>]] [-a <active_timer>] 
+//        [-i <inactive_timer>] [-m <count>]
 
 #include "flow.h"
 
+set settings;
 
 int main(int argc, char *argv[]) {
-    printf("%s, %d", argv[0], argc);
+    
+    /*
+    char ipCh[20] = "127.0.0.1";
+    uint32_t  ipI = 0;
+    ipI = inet_addr(ipCh);
+    printf("\n%s ... %d\n", ipCh, ipI); 
+    */
+
+    debugStruct();
+    // set default 
+    defaultSettings();
+    parseArgs(argc, argv);
+    
+    debugStruct();
+
+}
+
+/**
+ * @brief set default program settings in global var. settings 
+ * -f input file    [DEFAULT NULL (STDIN)] {inputFile}
+ * -c collector ip  [DEFAULT 127.0.0.1:2055] {collectorIp, collectorPort}
+ * -a acctive timer [DEFAULT 60s] {timerActive}
+ * -i interval      [DEFAULT 10s] {interval}
+ * -m flow cache    [DEFAULT 1024] {cacheSize}
+ */
+void defaultSettings(){
+    settings.inputFile      = NULL;
+    settings.collectorIp    = DEFAULT_IP;
+    settings.collectorPort  = DEFAULT_PORT;
+    settings.timerActive    = DEFAULT_TIMER;
+    settings.interval       = DEFAULT_INTERVAL;
+    settings.cacheSize      = DEFAULT_CACHE;
+    
+}
+
+//TODO delete 
+void debugStruct(){
+    fprintf(stderr, ".....file....... %p \n",settings.inputFile);
+    fprintf(stderr, ".....cIp........ %u \n",settings.collectorIp);
+    fprintf(stderr, ".....cPor....... %u \n",settings.collectorPort);
+    fprintf(stderr, ".....interval... %u \n",settings.interval);
+    fprintf(stderr, ".....timer...... %u \n",settings.timerActive);
+    fprintf(stderr, ".....cache...... %u \n",settings.cacheSize);
 }
 
