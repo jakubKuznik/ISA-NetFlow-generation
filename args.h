@@ -38,3 +38,16 @@ bool parseNumUINT16(char *s, uint16_t *out);
  * @return false if not sucesfull
  */
 bool parseNumUINT32(char *s, uint32_t *out);
+
+
+/**
+ * @brief Parse -c argument to ip and port.
+ *      [-c <netflow_collector>[:<port>]] 
+ *      netflow_collector can be either ip or hostname 
+ * @param in input variable
+ * @param colIp output variable
+ * @param colPort output variable 
+ * 
+ * @return false if not succesfull.
+ */
+bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort);

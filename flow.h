@@ -23,6 +23,7 @@
 #include <netinet/ip6.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
+#include <netdb.h>
 
 #include "args.h"
 #include "flow.h"
@@ -46,8 +47,8 @@
 struct set{
     //TODO ASSIGN DEFAULT VALUES 
     FILE *inputFile;            // input file if NULL we will use STDIN 
-    uint32_t collectorIp;       // netflow collector ip address 
-    uint16_t collectorPort;     // netflow collector ip address 
+    in_addr_t collectorIp;      // netflow collector ip address 
+    in_port_t collectorPort;    // netflow collector ip address 
     uint32_t timerActive;       // timmer in sec 
     uint32_t cacheSize;         // 
     uint32_t interval;          // after end non-active flows will be 
