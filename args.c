@@ -123,7 +123,9 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
         memcpy(&(*colIp), lh->h_addr, lh->h_length);
     }
 
-
+    // bad port num 
+    if(parseNumUINT16(tokenPort, colPort) == false)
+        return false;
 
     
     return true;
