@@ -9,4 +9,17 @@
 #include "flow.h"
 
 
-void parseArgs(int argc, char *argv[]);
+/**
+ * @brief Parse arguments and set settings variable 
+ * 
+ * @param argc agrs sum
+ * @param argv args array 
+ * @param settings struct with all the program settings  
+ */
+set parseArgs(int argc, char *argv[]);
+
+
+/**
+ * @brief Print hello message and ends a program with exit(1)
+ */
+void printHelp();

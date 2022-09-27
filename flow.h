@@ -33,22 +33,6 @@
 #define DEFAULT_INTERVAL 10
 #define DEFAULT_CACHE 1024
 
-
-/**
- * @brief set default program settings in global var. settings 
- * -f input file    [DEFAULT NULL (STDIN)] {p}
- * -c collector ip  [DEFAULT 127.0.0.1:2055] {collectorIp}
- * -a acctive timer [DEFAULT 60s] {timerActive}
- * -i interval      [DEFAULT 10s] {interval}
- * -m flow cache    [DEFAULT 1024] {cacheSize}
- */
-void defaultSettings();
-
-//TODO delete 
-void debugStruct();
-
-
-
 /**
  * @brief Settings struct for the program 
  * 
@@ -72,6 +56,20 @@ struct set{
 typedef struct set set;
 
 
+//TODO delete 
+void debugStruct();
+
+/**
+ * @brief set default program settings in global var. settings 
+ * -f input file    [DEFAULT NULL (STDIN)] {p}
+ * -c collector ip  [DEFAULT 127.0.0.1:2055] {collectorIp}
+ * -a acctive timer [DEFAULT 60s] {timerActive}
+ * -i interval      [DEFAULT 10s] {interval}
+ * -m flow cache    [DEFAULT 1024] {cacheSize}
+ * 
+ * @return Settings structure
+ */
+set defaultSettings();
 
 
   

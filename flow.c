@@ -10,6 +10,7 @@
 
 #include "flow.h"
 
+// GLOBAL settings variable
 set settings;
 
 int main(int argc, char *argv[]) {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
     debugStruct();
     // set default 
     defaultSettings();
-    parseArgs(argc, argv);
+    settings = parseArgs(argc, argv);
     
     debugStruct();
 
@@ -38,7 +39,7 @@ int main(int argc, char *argv[]) {
  * -i interval      [DEFAULT 10s] {interval}
  * -m flow cache    [DEFAULT 1024] {cacheSize}
  */
-void defaultSettings(){
+set defaultSettings(){
     settings.inputFile      = NULL;
     settings.collectorIp    = DEFAULT_IP;
     settings.collectorPort  = DEFAULT_PORT;
