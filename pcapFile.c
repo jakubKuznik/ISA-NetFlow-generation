@@ -16,3 +16,21 @@ void closeFile(FILE *f){
         fclose(f);
     }
 }
+
+/**
+ * @brief Open pcap_file using pcap_fopen_offline and return it 
+ * 
+ * @param f pcap file that will be opened (if NULL open stdin) 
+ * @param pcapBuff 
+ * @return pcap_t or NULL if fail 
+ */
+pcap_t * openPcapFile(FILE *f, char *pcapBuff){
+    pcap_t *pcap; 
+    if (f == NULL){
+        pcap = pcap_fopen_offline(stdin, pcapBuff);
+    }
+    else{
+        pcap = pcap_fopen_offline(f, pcapBuff);
+    }
+    return pcap;
+}

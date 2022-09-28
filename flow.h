@@ -24,6 +24,7 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netdb.h>
+#include <pcap/pcap.h>
 
 #include "args.h"
 #include "flow.h"
@@ -34,6 +35,10 @@
 #define DEFAULT_TIMER 60
 #define DEFAULT_INTERVAL 10
 #define DEFAULT_CACHE 1024
+
+// errbuf is assumed to be able to hold at least PCAP_ERRBUF_SIZE chars.
+#define MY_PCAP_BUFF_SIZE 2048
+
 
 /**
  * @brief Settings struct for the program 

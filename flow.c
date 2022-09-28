@@ -15,19 +15,46 @@ set settings;
 
 int main(int argc, char *argv[]) {
     
-    /*
-    char ipCh[20] = "127.0.0.1";
-    uint32_t  ipI = 0;
-    ipI = inet_addr(ipCh);
-    printf("\n%s ... %d\n", ipCh, ipI); 
-    */
+    debugStruct();
+
+    // set program settings 
+    settings = parseArgs(argc, argv);
+    char pcapBuff[MY_PCAP_BUFF_SIZE];
+    pcap_t *pcap;
+
+    while(true){
+        if ((pcap = openPcapFile(settings.inputFile, pcapBuff)) == NULL){
+            goto error1;
+        }
+        // stdin 
+        printf("\n!! %d  \n",PCAP_ERRBUF_SIZE);
+        if(pcap == NULL)
+            printf("errrrrurek");
+        
+        char *packet; 
+        struct pcap_pkthdr *header;
+        packet = pcap_next(pcap, &header);
+        //header.
+
+        /*
+        read_packet_from_pcap();
+        proccess_packet();
+        generate_netflow();
+        send_netflow();
+        */
+
+        break;
+    }
 
     debugStruct();
-    // set default 
-    defaultSettings();
-    settings = parseArgs(argc, argv);
     
-    debugStruct();
+    closeFile(settings.inputFile);
+    return 0;
+
+error1:
+    closeFile(settings.inputFile);
+    fprintf(stderr, "ERROR, Invalid pcap file\n");
+    return 1;
 
 }
 
@@ -58,5 +85,7 @@ void debugStruct(){
     fprintf(stderr, ".....interval... %u \n",settings.interval);
     fprintf(stderr, ".....timer...... %u \n",settings.timerActive);
     fprintf(stderr, ".....cache...... %u \n",settings.cacheSize);
+
+
 }
 
