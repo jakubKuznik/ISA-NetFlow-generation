@@ -2,9 +2,12 @@
 // File:        pcapFile.c
 // Author:      Jakub Kuzník, FIT
 // Compiled:    gcc 9.9.3.0
-// Works with pcap input file or stdin.  
+// Works with pcap input file or stdin.
 
 #include "pcapFile.h"
+
+
+
 
 
 /**

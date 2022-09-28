@@ -16,9 +16,10 @@ set settings;
 int main(int argc, char *argv[]) {
     
     debugStruct();
-
     // set program settings 
     settings = parseArgs(argc, argv);
+    
+    
     char pcapBuff[MY_PCAP_BUFF_SIZE];
     pcap_t *pcap;
 
@@ -26,14 +27,10 @@ int main(int argc, char *argv[]) {
         if ((pcap = openPcapFile(settings.inputFile, pcapBuff)) == NULL){
             goto error1;
         }
-        // stdin 
-        printf("\n!! %d  \n",PCAP_ERRBUF_SIZE);
-        if(pcap == NULL)
-            printf("errrrrurek");
+
         
-        char *packet; 
-        struct pcap_pkthdr *header;
-        packet = pcap_next(pcap, &header);
+        
+
         //header.
 
         /*
