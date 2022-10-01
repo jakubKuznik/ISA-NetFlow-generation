@@ -14,33 +14,44 @@
 set settings;
 
 int main(int argc, char *argv[]) {
-    
+
     debugStruct();
     // set program settings 
     settings = parseArgs(argc, argv);
-    
-    
+
+    // buffer that is used in pcap struct  
     char pcapBuff[MY_PCAP_BUFF_SIZE];
     pcap_t *pcap;
+    // array that has -m size //todo verify -1 +1 error  
+    netFlow flowArray[settings.cacheSize];
+    // information about array {firs, last, size, current}
+    flowArrayInfo fArrayInfo = {0, 0, settings.cacheSize, 0};
 
+    if ((pcap = openPcapFile(settings.inputFile, pcapBuff)) == NULL){
+        goto error1;
+    }
+    
     while(true){
-        if ((pcap = openPcapFile(settings.inputFile, pcapBuff)) == NULL){
-            goto error1;
-        }
 
-        
+        // read packet 
+        if((proccessPacket(pcap)) == NULL){
+            break;
+        } 
+    
         
 
         //header.
 
         /*
+        // get next packet 
         read_packet_from_pcap();
+
+        // parse data from packet to struct 
         proccess_packet();
         generate_netflow();
         send_netflow();
         */
 
-        break;
     }
 
     debugStruct();

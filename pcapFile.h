@@ -23,3 +23,10 @@ void closeFile(FILE *f);
  * @return pcap_t or NULL if fail 
  */
 pcap_t * openPcapFile(FILE *f, char *pcapBuff);
+
+/**
+ * @brief 
+ * 
+ *  TODO
+ */
+bool proccessPacket(pcap_t *pcap);

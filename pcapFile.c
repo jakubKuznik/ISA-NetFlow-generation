@@ -6,10 +6,6 @@
 
 #include "pcapFile.h"
 
-
-
-
-
 /**
  * @brief If file is not NULL, then close it. 
  * @param f 
@@ -36,4 +32,42 @@ pcap_t * openPcapFile(FILE *f, char *pcapBuff){
         pcap = pcap_fopen_offline(f, pcapBuff);
     }
     return pcap;
+}
+
+/**
+ * @brief 
+ * 
+ * I NEED: 
+ *  srcAddr
+ *  dstAddr
+ *  nxtHoop
+ * 
+ * @param pcap 
+ * @return true 
+ * @return false 
+ */
+bool proccessPacket(pcap_t *pcap){
+
+    const u_char        *frame;             // packet
+    struct pcap_pkthdr  pacHeader;        // packet header
+    struct ether_header *ethHeader;        // ethernet   
+
+    frame = pcap_next(pcap, &pacHeader);
+    if (frame == NULL)
+        return false;
+    ethHeader = (struct ether_header *)frame;
+
+    // find frame type 
+    switch (ntohs(ethHeader->ether_type)){
+        // ip + icmp
+        case ETHERTYPE_IP:
+            printf("ip paket\n");
+            break;
+        // ipv6
+        case ETHERTYPE_IPV6:
+            break;
+        default: //skip unknown protocol 
+            break;
+    }
+    return true;
 }
