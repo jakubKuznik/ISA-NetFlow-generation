@@ -56,9 +56,10 @@ int main(int argc, char *argv[]) {
         */
 
     }
-
+    
     debugStruct();
     
+    pcap_close(pcap);
     closeFile(settings.inputFile);
     return 0;
 

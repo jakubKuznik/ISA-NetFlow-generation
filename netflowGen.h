@@ -66,8 +66,8 @@ struct NFPayload{
   char tos;       // XXX - 
   uint16_t srcAs; // todo can be asked
   uint16_t dstAs; // todo can be asked 
-  char srcMask;   // XXX - 
-  char dstMask;   // XXX - 
+  char srcMask;   // XXX - should be /32 
+  char dstMask;   // XXX - should be /32
   uint16_t pad2;
 };
 typedef struct NFPayload NFPayload;

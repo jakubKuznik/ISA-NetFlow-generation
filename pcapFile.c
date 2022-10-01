@@ -45,9 +45,9 @@ pcap_t * openPcapFile(FILE *f, char *pcapBuff){
 packetInfo proccessPacket(pcap_t *pcap){
 
     const u_char        *frame;             // packet
-    struct pcap_pkthdr  pacHeader;        // packet header
+    struct pcap_pkthdr  pacHeader;          // packet header
     struct ether_header *ethHeader;        // ethernet   
-    packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, true};
+    packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0,  true};
 
     frame = pcap_next(pcap, &pacHeader);
     if (frame == NULL){
@@ -55,29 +55,113 @@ packetInfo proccessPacket(pcap_t *pcap){
       return pacInfo;
     }
     ethHeader = (struct ether_header *)frame;
+    
 
+    // get time and interface from pcap 
+    time_t frameTime = pacHeader.ts.tv_sec;
+
+    debugPktStruct(pacInfo);
 
     // ip + icmp
     if (ntohs(ethHeader->ether_type) == ETHERTYPE_IP){
       switch (protocolType(frame)){
         case ICMP:
-          printf("ICMP\n"); 
+          fprintf(stderr,"ICMP\n"); 
+          pacInfo = icmpPacketInfo(frame);
           break;
         case TCP:
-          printf("TCP\n"); 
+          fprintf(stderr, "TCP\n"); 
+          pacInfo = udpPacketInfo(frame);
           break;
         case UDP:
-          printf("UDP\n"); 
+          fprintf(stderr, "UDP\n"); 
+          pacInfo = tcpPacketInfo(frame);
           break;
         default:
           break;
       }
     }
+    pacInfo.pacTime = frameTime;
+    
+    debugPktStruct(pacInfo);
 
 
 
     return pacInfo;
 }
+
+
+/**
+ * @brief Find information about ICMP packet and write it to packetInfo struct 
+ * 
+ * @param frame 
+ * @return packetInfo struct 
+ */
+packetInfo icmpPacketInfo(const u_char *frame){
+  
+  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, true};
+  struct ip *ip_header = (struct ip*)(frame + ETH_HEAD_SIZE);
+
+  pacInfo.protocol = ICMP;
+  pacInfo.tos = ip_header->ip_tos;
+  pacInfo.srcAddr = inet_ntoa(ip_header->ip_src);
+  pacInfo.dstAddr = inet_ntoa(ip_header->ip_dst);
+  pacInfo.srcPort = 0;
+  pacInfo.dstPort = 0;
+  pacInfo.layer3Size = ip_header->ip_hl;
+  pacInfo.packetSize = ip_header->ip_len;
+
+  return pacInfo; 
+}
+
+/**
+ * @brief Find information about tcp packet and write it to packetInfo struct 
+ * 
+ * @param frame 
+ * @return packetInfo struct 
+ */
+packetInfo tcpPacketInfo(const u_char *frame){
+  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, true};
+
+  struct ip *ipHeader = (struct ip*)(frame + ETH_HEAD_SIZE);
+  struct tcphdr *tcpHeader = (struct tcphdr*)(frame + ETH_HEAD_SIZE + ipHeader->ip_hl);
+
+  pacInfo.protocol = UDP;
+  pacInfo.tos = ipHeader->ip_tos;
+  pacInfo.srcAddr = inet_ntoa(ipHeader->ip_src);
+  pacInfo.dstAddr = inet_ntoa(ipHeader->ip_dst);
+  pacInfo.layer3Size = ipHeader->ip_hl;
+  pacInfo.packetSize = ipHeader->ip_len;
+  pacInfo.srcPort = tcpHeader->source;
+  pacInfo.dstPort = tcpHeader->dest;
+
+  return pacInfo; 
+}
+
+/**
+ * @brief Find information about udp packet and write it to packetInfo struct 
+ * 
+ * @param frame 
+ * @return packetInfo struct 
+ */
+packetInfo udpPacketInfo(const u_char *frame){
+  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, true};
+
+  struct ip *ipHeader = (struct ip*)(frame + ETH_HEAD_SIZE);
+  struct udphdr *udpHeader = (struct udphdr*)(frame + ETH_HEAD_SIZE + ipHeader->ip_hl);
+
+  pacInfo.protocol = UDP;
+  pacInfo.tos = ipHeader->ip_tos;
+  pacInfo.srcAddr = inet_ntoa(ipHeader->ip_src);
+  pacInfo.dstAddr = inet_ntoa(ipHeader->ip_dst);
+  pacInfo.layer3Size = ipHeader->ip_hl;
+  pacInfo.packetSize = ipHeader->ip_len;
+  pacInfo.srcPort = udpHeader->uh_sport;
+  pacInfo.dstPort = udpHeader->uh_dport;
+
+  return pacInfo; 
+}
+
 
 /**
  * @brief find out packet protocol 
@@ -102,4 +186,19 @@ int protocolType(const u_char *frame){
     default:
       return UNKNOWN_PROTOCOL;
     }
+}
+
+
+// TODO smazat 
+void debugPktStruct(packetInfo pktInfo){
+  fprintf(stderr, "'''' srcAddr '''''' %d\n", pktInfo.srcAddr);
+  fprintf(stderr, "'''' dstAddr '''''' %d\n", pktInfo.dstAddr);
+  fprintf(stderr, "'''' srcPort '''''' %d\n", pktInfo.srcPort);
+  fprintf(stderr, "'''' dstPort '''''' %d\n", pktInfo.dstPort);
+  fprintf(stderr, "'''' protocol '''''' %d\n", pktInfo.protocol);
+  fprintf(stderr, "'''' tos '''''' %d\n", pktInfo.tos);
+  fprintf(stderr, "'''' layer3size '''''' %d\n", pktInfo.layer3Size);
+  fprintf(stderr, "'''' pacSize  '''''' %d\n", pktInfo.packetSize);
+  fprintf(stderr, "'''' pacTime '''''' %ld\n", pktInfo.pacTime);
+  fprintf(stderr, "''''''''''''''''''' \n");
 }

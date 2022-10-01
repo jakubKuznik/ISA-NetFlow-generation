@@ -21,13 +21,17 @@
  */
 struct packetInfo
 {
-  uint32_t srcAddr;   // XXX 
-  uint32_t dstAddr;   // XXX
-  uint16_t srdPort;   // XXX
-  char tos;           // XXX
-  char srcMask;       // XXX
-  char dstMask;       // XXX
-  uint32_t layer3Size; // from IHL 
+
+  uint32_t srcAddr;        // XXX 
+  uint32_t dstAddr;        // XXX
+  uint16_t srcPort;        // XXX
+  uint16_t dstPort;        // XXX
+  int protocol;            // TCP UDP ICMP 
+  uint8_t tos;             // XXX
+  //char srcMask;          // XXX
+  //char dstMask;          // XXX
+  unsigned int layer3Size; // from IHL 
+  uint16_t packetSize;     // entire packet size  
   time_t pacTime;
   bool ok;            // if ok set to true 
 };
@@ -63,10 +67,39 @@ packetInfo proccessPacket(pcap_t *pcap);
  * @brief find out packet protocol 
  * 
  * @param frame 
- * @return UNKNOWN_PROTOCOL if not icmp tcp or udp  
+ * @return -1 if unknown protocol  
  * @return ICMP 
  * @return TCP
  * @return UDP 
  */
 int protocolType(const u_char *frame);
 
+
+
+/**
+ * @brief Find information about ICMP packet and write it to packetInfo struct 
+ * 
+ * @param frame 
+ * @return packetInfo struct 
+ */
+packetInfo icmpPacketInfo(const u_char *frame);
+
+/**
+ * @brief Find information about tcp packet and write it to packetInfo struct 
+ * 
+ * @param frame 
+ * @return packetInfo struct 
+ */
+packetInfo tcpPacketInfo(const u_char *frame);
+
+/**
+ * @brief Find information about udp packet and write it to packetInfo struct 
+ * 
+ * @param frame 
+ * @return packetInfo struct 
+ */
+packetInfo udpPacketInfo(const u_char *frame);
+
+
+// TODO smazat 
+void debugPktStruct(packetInfo pktInfo);
