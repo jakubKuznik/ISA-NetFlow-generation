@@ -24,6 +24,10 @@ int main(int argc, char *argv[]) {
     pcap_t *pcap;
     // array that has -m size //todo verify -1 +1 error  
     netFlow flowArray[settings.cacheSize];
+
+    // basic info about packet that is need for netflow 
+    packetInfo pacInfo;
+
     // information about array {firs, last, size, current}
     flowArrayInfo fArrayInfo = {0, 0, settings.cacheSize, 0};
 
@@ -34,10 +38,9 @@ int main(int argc, char *argv[]) {
     while(true){
 
         // read packet 
-        if((proccessPacket(pcap)) == NULL){
+        pacInfo = proccessPacket(pcap);
+        if (pacInfo.ok == false)
             break;
-        } 
-    
         
 
         //header.

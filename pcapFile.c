@@ -35,39 +35,71 @@ pcap_t * openPcapFile(FILE *f, char *pcapBuff){
 }
 
 /**
- * @brief 
+ * @brief This function will find all the packets information that are need for
+ *  netflow and return  
  * 
- * I NEED: 
- *  srcAddr
- *  dstAddr
- *  nxtHoop
- * 
- * @param pcap 
- * @return true 
- * @return false 
+ * @param pcap  
+ * @return packetInfo struct 
+ * @return NULL if error 
  */
-bool proccessPacket(pcap_t *pcap){
+packetInfo proccessPacket(pcap_t *pcap){
 
     const u_char        *frame;             // packet
     struct pcap_pkthdr  pacHeader;        // packet header
     struct ether_header *ethHeader;        // ethernet   
+    packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, true};
 
     frame = pcap_next(pcap, &pacHeader);
-    if (frame == NULL)
-        return false;
+    if (frame == NULL){
+      pacInfo.ok = false;
+      return pacInfo;
+    }
     ethHeader = (struct ether_header *)frame;
 
-    // find frame type 
-    switch (ntohs(ethHeader->ether_type)){
-        // ip + icmp
-        case ETHERTYPE_IP:
-            printf("ip paket\n");
-            break;
-        // ipv6
-        case ETHERTYPE_IPV6:
-            break;
-        default: //skip unknown protocol 
-            break;
+
+    // ip + icmp
+    if (ntohs(ethHeader->ether_type) == ETHERTYPE_IP){
+      switch (protocolType(frame)){
+        case ICMP:
+          printf("ICMP\n"); 
+          break;
+        case TCP:
+          printf("TCP\n"); 
+          break;
+        case UDP:
+          printf("UDP\n"); 
+          break;
+        default:
+          break;
+      }
     }
-    return true;
+
+
+
+    return pacInfo;
+}
+
+/**
+ * @brief find out packet protocol 
+ * 
+ * @param frame 
+ * @return UNKNOWN_PROTOCOL if not icmp tcp or udp  
+ * @return ICMP 
+ * @return TCP
+ * @return UDP 
+ */
+int protocolType(const u_char *frame){
+  
+  struct ip *ip_header = (struct ip*)(frame + ETH_HEAD_SIZE);
+
+  switch (ip_header->ip_p){
+    case ICMP:
+      return ICMP;
+    case TCP:
+      return TCP;
+    case UDP:
+      return UDP;
+    default:
+      return UNKNOWN_PROTOCOL;
+    }
 }
