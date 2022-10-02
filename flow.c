@@ -18,18 +18,13 @@ int main(int argc, char *argv[]) {
     debugStruct();
     // set program settings 
     settings = parseArgs(argc, argv);
-
     // buffer that is used in pcap struct  
     char pcapBuff[MY_PCAP_BUFF_SIZE];
     pcap_t *pcap;
-    // array that has -m size //todo verify -1 +1 error  
-    netFlow flowArray[settings.cacheSize];
-
     // basic info about packet that is need for netflow 
     packetInfo pacInfo;
-
-    // information about array {firs, last, size, current}
-    flowArrayInfo fArrayInfo = {0, 0, settings.cacheSize, 0};
+    // list with all the flows 
+    flowList * flowL; 
 
     if ((pcap = openPcapFile(settings.inputFile, pcapBuff)) == NULL){
         goto error1;
@@ -42,14 +37,10 @@ int main(int argc, char *argv[]) {
         if (pacInfo.ok == false)
             break;
         
-
-        //header.
-
-        /*
-        // get next packet 
-        read_packet_from_pcap();
-
+        if((flowL = initFlowList()) == NULL)
+            goto error2;
         // parse data from packet to struct 
+        /*
         proccess_packet();
         generate_netflow();
         send_netflow();
@@ -60,13 +51,17 @@ int main(int argc, char *argv[]) {
     debugStruct();
     
     pcap_close(pcap);
-    closeFile(settings.inputFile);
     return 0;
 
 error1:
     closeFile(settings.inputFile);
     fprintf(stderr, "ERROR, Invalid pcap file\n");
     return 1;
+error2:
+    closeFile(settings.inputFile);
+    fprintf(stderr, "ERROR, malloc error\n");
+    return 2;
+
 
 }
 

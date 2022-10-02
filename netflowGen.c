@@ -34,6 +34,51 @@ void NFGeneratePayload(){
     printf(" ");
 }
 
+/**
+ * @brief Inicialize flow list sets first, last, current to null 
+ * 
+ * @return flowList* 
+ * @return NULL if malloc error;
+ */
+flowList * initFlowList(){
+    flowList *flowL = malloc(sizeof(flowList));
+    if (flowL == NULL)
+        return NULL;
+
+    flowL->current = NULL;
+    flowL->first   = NULL;
+    flowL->last    = NULL;
+    flowL->size    = 0;
+
+    return initFlowList;
+}
+
+/**
+ * @brief Create a Flow object
+ *  can set first and last flow 
+ * 
+ * @param flowL list of all flows  
+ * @param pacInfo packet info 
+ * @return true 
+ * @return false if error  
+ */
+bool createFlow(flowList *flowL, packetInfo pacInfo){
+
+    // if empty 
+
+    // if there is just one 
+
+    // if full 
+
+    return true;
+}
+
+void freeFlowList(flowList *flowL){
+    //node *firs 
+    return;
+}
+
+
 void genNetflow(){
     printf(".");
 }

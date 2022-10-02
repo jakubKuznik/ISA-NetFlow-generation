@@ -37,7 +37,7 @@ typedef struct NFHeader NFHeader;
  srcaddr  dst-addr  nexthop  input   output  dPkts  dOctents
 
   24-27    28-31     32-33    34-35     36       37      38
-  firts    Last     srcport  dstport   pad1   tcpflags  port
+  firts    Last     srcport  dstport   pad1   tcpflags   prot 
 
    39    40-41    42-43      44        45       46-47
   tos    src_as   dst_as  src_mask  dst_mask    pad2 
@@ -62,7 +62,7 @@ struct NFPayload{
   uint16_t dstPort;
   char pad1;      // 0
   char tcpFlags;  
-  char port;      
+  char prot;      
   char tos;       // XXX - 
   uint16_t srcAs; // todo can be asked
   uint16_t dstAs; // todo can be asked 
@@ -79,6 +79,32 @@ struct netFlow{
 };
 typedef struct netFlow netFlow;
 
+
+/**
+ * @brief Double linked list with flows;
+ */
+struct flowList{
+  int size; 
+  struct node *first;   
+  struct node *last;
+  struct node *current;   
+};
+typedef struct flowList flowList;
+
+/**
+ * @brief linked list one node
+ * 
+ * |-NULL----node1---node2---nodeN---NULL-|
+ */
+struct node{
+  netFlow data; 
+  struct node *next;
+  struct node *prev;
+};
+typedef struct node node;
+
+
+
 /**
  * @brief Information about flow array as we can delete the oldest flow 
  * with this data struct we dont have to reindex everything. 
@@ -92,6 +118,14 @@ struct flowArrayInfo{
 };
 typedef struct flowArrayInfo flowArrayInfo;
 
+
+/**
+ * @brief Inicialize flow list sets first, last, current to null 
+ * 
+ * @return flowList* 
+ * @return NULL if malloc error;
+ */
+flowList * initFlowList();
 
 
 void NFGeneratePayload();
