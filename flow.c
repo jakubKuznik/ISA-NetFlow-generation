@@ -14,7 +14,8 @@
 set settings;
 
 int main(int argc, char *argv[]) {
-    getBootTime();
+
+    printf("... %li ... %li...\n",getUTCinSec(), getUTCinNsec());
 
     debugStruct();
     // set program settings 

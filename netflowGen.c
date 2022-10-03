@@ -103,7 +103,9 @@ NFHeader *createHeader(){
     
     header->version = NF_VERSION;
     header->count   = FLOWS_IN_PACKETS;
-
+    header->sysUpTime = 0;
+    header->unixSecs = 0;
+    header->unixNSecs = 0;
     return NULL; 
 
 }

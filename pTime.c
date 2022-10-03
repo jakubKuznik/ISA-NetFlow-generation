@@ -6,6 +6,23 @@
 
 #include "pTime.h"
 
+/**
+ * @brief get time in seconds since 0000 UTC 1970 
+ * 
+ * @return long 
+ */
+long getUTCinSec(){
+    return time(NULL); 
+}
+
+/**
+ * @brief get time in Nseconds since 0000 UTC 1970 
+ * 
+ * @return long 
+ */
+long getUTCinNsec(){
+    return (1000000000 * time(NULL)); 
+}
 
 /**
  * @brief Get the time in miliseconds since device booted  

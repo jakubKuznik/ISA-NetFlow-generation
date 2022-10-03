@@ -9,7 +9,19 @@
 #include "flow.h"
 #include "pcapFile.h"
 
+/**
+ * @brief get time in seconds since 0000 UTC 1970 
+ * 
+ * @return long time
+ */
+long getUTCinSec();
 
+/**
+ * @brief get time in Nseconds since 0000 UTC 1970 
+ * 
+ * @return long 
+ */
+long getUTCinNsec();
 
 /**
  * @brief Get the time in miliseconds since device booted  
