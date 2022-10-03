@@ -53,25 +53,25 @@ typedef struct NFHeader NFHeader;
  */
 struct NFPayload{
   // todo review if anything can be const 
-  uint32_t srcAddr; // XXX - 
-  uint32_t dstAddr; // XXX -
-  uint32_t nextHop; // 0
-  uint16_t input;   // 0
-  uint16_t output;  // 0
-  uint32_t dPkts;   
-  uint32_t dOctents;
-  uint32_t firts;
-  uint32_t last;
-  uint16_t srcPort; // XXX
-  uint16_t dstPort;
-  char pad1;      // 0
-  char tcpFlags;  
-  char prot;      
-  char tos;       // XXX - 
-  uint16_t srcAs; // todo can be asked
-  uint16_t dstAs; // todo can be asked 
-  char srcMask;   // XXX - should be /32 
-  char dstMask;   // XXX - should be /32
+  uint32_t srcAddr;  // XXX - 
+  uint32_t dstAddr;  // XXX -
+  uint32_t nextHop;  // 0
+  uint16_t input;    // 0
+  uint16_t output;   // 0
+  uint32_t dPkts;    // update after every packet  
+  uint32_t dOctents; // update after every packet 
+  uint32_t firts;    
+  uint32_t last;     // update 
+  uint16_t srcPort;  // XXX
+  uint16_t dstPort;  // XXX 
+  uint8_t pad1;      // 0
+  uint8_t tcpFlags;  
+  uint8_t prot;      
+  uint8_t tos;       // XXX - 
+  uint16_t srcAs;    // todo can be asked
+  uint16_t dstAs;    // todo can be asked 
+  uint8_t srcMask;   // XXX - should be /32 
+  uint8_t dstMask;   // XXX - should be /32
   uint16_t pad2;
 };
 typedef struct NFPayload NFPayload;
@@ -121,7 +121,6 @@ struct flowArrayInfo{
 };
 typedef struct flowArrayInfo flowArrayInfo;
 
-
 /**
  * @brief Inicialize flow list sets first, last, current to null 
  * 
@@ -129,7 +128,6 @@ typedef struct flowArrayInfo flowArrayInfo;
  * @return NULL if malloc error;
  */
 flowList * initFlowList();
-
 
 /**
  * @brief Create a Flow object
@@ -147,7 +145,38 @@ bool createFlow(flowList *flowL, struct packetInfo *pacInfo);
  */
 void freeInitFlowList(flowList *flowL);
 
+/**
+ * @brief Create a flow header
+ * 
+ * @return NFHeader* 
+ * @return NULL if malloc error 
+ */
+NFHeader *createHeader();
 
-void NFGeneratePayload();
-void NFGenerateHeader();
+/**
+ * @brief Update flow payload 
+ * 
+ * @param payload 
+ * @param packet 
+ */
+void updatePayload(NFPayload *payload, struct packetInfo packet);
 
+/**
+ * @brief Create a netflow Payload 
+ * 
+ * @
+ * 
+ * @return NFPayload* 
+ * @return NULL if not succ 
+ */
+NFPayload *createPayload(struct packetInfo packet);
+
+
+
+/**
+ * @brief Create a flow header
+ * 
+ * @return NFHeader* 
+ * @return NULL if malloc error 
+ */
+NFHeader *createHeader();

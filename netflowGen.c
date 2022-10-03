@@ -96,23 +96,72 @@ flowList * initFlowList(){
     return flowL;
 }
 
+/**
+ * @brief Create a flow header
+ * 
+ * @return NFHeader* 
+ * @return NULL if malloc error 
+ */
 NFHeader *createHeader(){
     NFHeader *header = malloc(sizeof(NFHeader));
     if (header == NULL)
         return NULL;
     
-    header->version = NF_VERSION;
-    header->count   = FLOWS_IN_PACKETS;
-    header->sysUpTime = 0;
-    header->unixSecs = 0;
-    header->unixNSecs = 0;
-    return NULL; 
-
+    header->version     = NF_VERSION;
+    header->count       = FLOWS_IN_PACKETS;
+    header->sysUpTime   = getBootTime();
+    header->unixSecs    = getUTCinSec();
+    header->unixNSecs   = getUTCinNsec();
+    return header; 
 }
 
-time_t getCurrentTime(){
-    time_t t = 0;
-    return t;
+/**
+ * @brief Create a netflow Payload 
+ * 
+ * @
+ * 
+ * @return NFPayload* 
+ * @return NULL if not succ 
+ */
+NFPayload *createPayload(struct packetInfo packet){
+    NFPayload *payload = malloc(sizeof(NFPayload));
+    if (payload == NULL)
+        return NULL;
+
+    payload->srcAddr  = packet.srcAddr;
+    payload->dstAddr  = packet.dstAddr;
+    payload->nextHop  = UNKNOWN;
+    payload->input    = UNKNOWN;
+    payload->output   = UNKNOWN;
+    payload->dPkts    = 1; 
+    payload->dOctents = packet.layer3Size; // TODO maybe wrong 
+    payload->firts    = packet.pacTime;    
+    payload->last     = packet.pacTime;    // has to update every packet 
+    payload->srcPort  = packet.srcPort;
+    payload->dstPort  = packet.dstPort;
+    payload->pad1     = 0;
+    payload->tcpFlags = packet.cumulTcpOr;
+    payload->prot     = packet.protocol;
+    payload->tos      = packet.tos;
+    payload->srcAs    = UNKNOWN;
+    payload->dstAs    = UNKNOWN;
+    payload->srcMask  = UNKNOWN;
+    payload->dstMask  = UNKNOWN;
+    payload->pad2     = 0;
+    
+    return payload;
+}
+
+/**
+ * @brief Update flow payload 
+ * 
+ * @param payload 
+ * @param packet 
+ */
+void updatePayload(NFPayload *payload, struct packetInfo packet){
+    payload->dPkts++;
+    payload->dOctents += packet.layer3Size;
+    payload->last = packet.pacTime;
 }
 
 
