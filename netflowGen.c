@@ -35,6 +35,26 @@ void NFGeneratePayload(){
 }
 
 /**
+ * @brief Free initFlowList struct 
+ */
+void freeInitFlowList(flowList *flowL){
+
+
+    if (flowL->first != NULL){
+        free(flowL->first);
+    }
+    /*
+    if (flowL->first != NULL){
+        free(flowL->first);
+    }
+    if (flowL->first != NULL){
+        free(flowL->first);
+    }
+    */
+    free(flowL);
+}
+
+/**
  * @brief Inicialize flow list sets first, last, current to null 
  * 
  * @return flowList* 
@@ -45,33 +65,89 @@ flowList * initFlowList(){
     if (flowL == NULL)
         return NULL;
 
+    /*
+    flowL->current = malloc(sizeof(node *));
+    if (flowL->current == NULL){
+        free(flowL);
+        return NULL;
+    }
+    
+    flowL->first = malloc(sizeof(node *));
+    if (flowL->current == NULL){
+        free(flowL);
+        free(flowL->current);
+        return NULL;
+    }
+    
+    flowL->last = malloc(sizeof(node *));
+    if (flowL->current == NULL){
+        free(flowL);
+        free(flowL->current);
+        free(flowL->first);
+        return NULL;
+    }
+    */
+
     flowL->current = NULL;
     flowL->first   = NULL;
     flowL->last    = NULL;
     flowL->size    = 0;
 
-    return initFlowList;
+    return flowL;
 }
+
+NFHeader *createHeader(){
+    NFHeader *header = malloc(sizeof(NFHeader));
+    if (header == NULL)
+        return NULL;
+    
+    header->version = NF_VERSION;
+    header->count   = FLOWS_IN_PACKETS;
+
+    return NULL; 
+
+}
+
+time_t getCurrentTime(){
+    time_t t = 0;
+    return t;
+}
+
 
 /**
  * @brief Create a Flow object
- *  can set first and last flow 
+ *  can set first and last flow and increment size; 
  * 
  * @param flowL list of all flows  
  * @param pacInfo packet info 
  * @return true 
  * @return false if error  
  */
-bool createFlow(flowList *flowL, packetInfo pacInfo){
+bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
+    node *newNode;
 
     // if empty 
+    if (flowL->first == NULL){
+        newNode = malloc(sizeof(node));
+        if (newNode == NULL)
+            return false;
+        newNode->next = NULL;
+        newNode->prev = NULL;
+
+        
+        
+
+    }
 
     // if there is just one 
 
     // if full 
 
     return true;
+
 }
+
+
 
 void freeFlowList(flowList *flowL){
     //node *firs 

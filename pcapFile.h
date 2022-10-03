@@ -21,7 +21,6 @@
  */
 struct packetInfo
 {
-
   uint32_t srcAddr;        // XXX 
   uint32_t dstAddr;        // XXX
   uint16_t srcPort;        // XXX

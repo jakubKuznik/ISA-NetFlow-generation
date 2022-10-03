@@ -29,6 +29,7 @@
 #include "args.h"
 #include "flow.h"
 #include "netflowGen.h"
+#include "pTime.h"
 
 /* Default program settings */
 #define DEFAULT_PORT 2055
@@ -78,6 +79,3 @@ void debugStruct();
  * @return Settings structure
  */
 set defaultSettings();
-
-
-  

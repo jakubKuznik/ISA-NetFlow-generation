@@ -7,7 +7,11 @@
 #pragma once
 
 #include "flow.h"
+#include "pcapFile.h"
 
+#define NF_VERSION 5
+#define UNKNOWN 0
+#define FLOWS_IN_PACKETS 1
 
 
 /******************   HEADER  ********************************
@@ -21,12 +25,12 @@ struct NFHeader{
   // todo review if anything can be const 
   uint16_t version;
   uint16_t count;
-  time_t sysUpTime;
-  time_t unixSecs;
-  time_t unixNSecs;
-  uint32_t flowSequence;
-  char engineType;
-  char engineId;
+  time_t sysUpTime;      // this has to be updated 
+  time_t unixSecs;       // this has to be updated 
+  time_t unixNSecs;      // this has to be updated 
+  uint32_t flowSequence; // this has to be updated 
+  uint8_t engineType;
+  uint8_t engineId;
   uint16_t samplingInterval;
 };
 typedef struct NFHeader NFHeader;
@@ -104,7 +108,6 @@ struct node{
 typedef struct node node;
 
 
-
 /**
  * @brief Information about flow array as we can delete the oldest flow 
  * with this data struct we dont have to reindex everything. 
@@ -126,6 +129,23 @@ typedef struct flowArrayInfo flowArrayInfo;
  * @return NULL if malloc error;
  */
 flowList * initFlowList();
+
+
+/**
+ * @brief Create a Flow object
+ *  can set first and last flow and increment size; 
+ * 
+ * @param flowL list of all flows  
+ * @param pacInfo packet info 
+ * @return true 
+ * @return false if error  
+ */
+bool createFlow(flowList *flowL, struct packetInfo *pacInfo);
+
+/**
+ * @brief Free initFlowList struct 
+ */
+void freeInitFlowList(flowList *flowL);
 
 
 void NFGeneratePayload();

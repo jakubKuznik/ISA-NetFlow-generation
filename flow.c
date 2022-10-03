@@ -14,6 +14,7 @@
 set settings;
 
 int main(int argc, char *argv[]) {
+    getBootTime();
 
     debugStruct();
     // set program settings 
@@ -22,23 +23,31 @@ int main(int argc, char *argv[]) {
     char pcapBuff[MY_PCAP_BUFF_SIZE];
     pcap_t *pcap;
     // basic info about packet that is need for netflow 
-    packetInfo pacInfo;
+    packetInfo * pacInfo = malloc(sizeof(packetInfo));
     // list with all the flows 
     flowList * flowL; 
 
     if ((pcap = openPcapFile(settings.inputFile, pcapBuff)) == NULL){
         goto error1;
     }
-    
+
+    // init flow list  
+    if((flowL = initFlowList()) == NULL)
+        goto error2;
+
     while(true){
 
         // read packet 
-        pacInfo = proccessPacket(pcap);
-        if (pacInfo.ok == false)
+        *pacInfo = proccessPacket(pcap);
+        if (pacInfo->ok == false)
             break;
         
-        if((flowL = initFlowList()) == NULL)
-            goto error2;
+        if (createFlow(flowL, pacInfo) == false)
+            goto error3;
+        
+
+        
+        
         // parse data from packet to struct 
         /*
         proccess_packet();
@@ -47,23 +56,35 @@ int main(int argc, char *argv[]) {
         */
 
     }
-    
+
+    free(pacInfo);
+    freeInitFlowList(flowL);
     debugStruct();
     
     pcap_close(pcap);
     return 0;
 
 error1:
+    free(pacInfo);
     closeFile(settings.inputFile);
     fprintf(stderr, "ERROR, Invalid pcap file\n");
     return 1;
 error2:
-    closeFile(settings.inputFile);
+    free(pacInfo);
+    pcap_close(pcap);
+    fprintf(stderr, "ERROR, malloc error\n");
+    return 2;
+
+error3:
+    free(pacInfo);
+    freeInitFlowList(flowL);
+    pcap_close(pcap);
     fprintf(stderr, "ERROR, malloc error\n");
     return 2;
 
 
 }
+
 
 /**
  * @brief set default program settings in global var. settings 
