@@ -120,6 +120,7 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
             return false;
         
         // TODO there can be multiple addresses behind hostname
+
         memcpy(&(*colIp), lh->h_addr, lh->h_length);
     }
 
@@ -127,6 +128,7 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
     if(parseNumUINT16(tokenPort, colPort) == false)
         return false;
 
+    colPort = htons(colPort);
     
     return true;
 }

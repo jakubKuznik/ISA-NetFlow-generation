@@ -40,7 +40,7 @@
 
 // errbuf is assumed to be able to hold at least PCAP_ERRBUF_SIZE chars.
 #define MY_PCAP_BUFF_SIZE 2048
-
+#define BUFFER 4096
 
 /**
  * @brief Settings struct for the program 
@@ -79,3 +79,11 @@ void debugStruct();
  * @return Settings structure
  */
 set defaultSettings();
+
+
+/**
+ * @brief Init server where flow will be send. sets ip and port 
+ * 
+ * @return sockaddr_in 
+ */
+struct sockaddr_in initServer();
