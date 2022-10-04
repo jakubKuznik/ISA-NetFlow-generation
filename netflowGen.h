@@ -78,8 +78,8 @@ typedef struct NFPayload NFPayload;
 
 
 struct netFlow{
-  NFHeader nfheader;
-  NFPayload nfpayload;
+  NFHeader * nfheader;
+  NFPayload * nfpayload;
 };
 typedef struct netFlow netFlow;
 
@@ -101,7 +101,7 @@ typedef struct flowList flowList;
  * |-NULL----node1---node2---nodeN---NULL-|
  */
 struct node{
-  netFlow data; 
+  netFlow * data; 
   struct node *next;
   struct node *prev;
 };
@@ -218,3 +218,12 @@ bool appplyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);
  * @return false if error 
  */
 bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);
+
+/**
+ * @brief Create a new node (flow) from packet and return pointer to it 
+ * 
+ * @param pacInfo 
+ * @return node * 
+ * @return NULL if error 
+ */
+node *createNode(struct packetInfo *pacInfo);

@@ -182,7 +182,7 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
  * @return true if ok
  * @return false if error 
  */
-bool appplyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
+bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
     return true;
 }
 
@@ -199,6 +199,7 @@ bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
     return true;
 }
 
+
 /**
  * @brief Create a Flow object
  *  can set first and last flow and increment size; 
@@ -210,25 +211,73 @@ bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
  */
 bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
 
+    // create node 
+    node *newNode = createNode(pacInfo);
+    if (newNode == NULL)
+        return false;
 
-    node *newNode;
+
     // if empty 
     if (flowL->first == NULL){
-        newNode = malloc(sizeof(node));
-        if (newNode == NULL)
-            return false;
-        newNode->next = NULL;
+        flowL->first = newNode;
+        flowL->last  = newNode;
         newNode->prev = NULL;
-
+    }
+    // if first == last 
+    else if (flowL->first == flowL->last){
+        flowL->last = newNode;
+        flowL->first->next = newNode;
+        newNode->prev = flowL->first;
+    }
+    else{
+        node *temp;
+        temp = flowL->last;
+        flowL->last = newNode;
+        temp->next = newNode;
+        newNode->prev = temp;
     }
 
-    // if there is just one 
-
-    // if full 
-
+    newNode->next = NULL;
+    flowL->size++;
     return true;
-
 }
+
+/**
+ * @brief Create a new node (flow) from packet and return pointer to it 
+ * 
+ * @param pacInfo 
+ * @return node * 
+ * @return NULL if error 
+ */
+node *createNode(struct packetInfo *pacInfo){
+    node *temp = malloc(sizeof(node));
+    if (temp == NULL)
+        return NULL;
+
+    temp->data = malloc(sizeof(flowList));
+    if (temp->data == NULL){
+        free (temp);
+        return NULL;
+    }
+
+    temp->data->nfpayload = createPayload(*pacInfo);
+    if (temp->data->nfpayload == NULL){
+        free(temp->data);
+        free(temp);
+        return NULL;
+    }
+
+    temp->data->nfheader = createHeader(pacInfo);
+    if (temp->data->nfheader == NULL){
+        free(temp->data->nfpayload);
+        free(temp->data);
+        free(temp);
+        return NULL;
+    }
+
+    return temp;
+}
+
 
 /**
  * @brief find if packet is related to some existing flow 
@@ -240,12 +289,15 @@ bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
  */
 node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
     node * temp = flowL->first;
+    //printf("%d ", temp->data->nfpayload);
+    if (temp == NULL)
+        return NULL;
     while (temp != NULL){
-        if (pacInfo->srcAddr  == temp->data.nfpayload.srcAddr \ 
-        &&  pacInfo->dstAddr  == temp->data.nfpayload.dstAddr \
-        &&  pacInfo->srcPort  == temp->data.nfpayload.srcPort \
-        &&  pacInfo->dstPort  == temp->data.nfpayload.dstPort \
-        &&  pacInfo->protocol == temp->data.nfpayload.prot )
+        if (pacInfo->srcAddr  == temp->data->nfpayload->srcAddr \ 
+        &&  pacInfo->dstAddr  == temp->data->nfpayload->dstAddr \
+        &&  pacInfo->srcPort  == temp->data->nfpayload->srcPort \
+        &&  pacInfo->dstPort  == temp->data->nfpayload->dstPort \
+        &&  pacInfo->protocol == temp->data->nfpayload->prot )
             return temp;
         if (temp->next == NULL)
             break;
@@ -256,38 +308,6 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
     return NULL;
 }
 
-void freeFlowList(flowList *flowL){
-    //node *firs 
-    return;
-}
 
 
-void genNetflow(){
-    printf(".");
-}
 
-/**
- * @brief Get the Last Flow object
- * 
- * @return int 
- */
-int getLastFlow(){
-    return 2;
-}
-
-/**
- * @brief Get the Last Flow object
- * 
- * @return int 
- */
-int getFirstFlow(){
-    return 2;
-}
-
-/**
- * @brief 
- * 
- */
-void removeOldestFlow(){
-    printf("..");
-}

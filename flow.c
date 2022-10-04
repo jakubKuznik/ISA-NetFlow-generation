@@ -50,25 +50,24 @@ int main(int argc, char *argv[]) {
             goto error4;
 
         // apply inactive timer -i -> clean flows
-        if (appplyInactiveTimer(flowL, pacInfo->pacTime, settings.interval))
+        if (appplyInactiveTimer(flowL, pacInfo->pacTime, settings.interval) == false)
             goto error4;
 
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
-            updatePayload(&temp->data.nfpayload, *pacInfo);
-            break;
+            printf("\n*****HIHI*******\n");
+            updatePayload(&temp->data->nfpayload, *pacInfo);
+            continue;;
         }        
 
-        // delete the oldest one 
+        // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize){
             printf("1");
         }
 
         if (createFlow(flowL, pacInfo) == false)
             goto error3;
-        
-
         
         
         // parse data from packet to struct 
@@ -79,6 +78,7 @@ int main(int argc, char *argv[]) {
         */
 
     }
+
 
     free(pacInfo);
     freeInitFlowList(flowL);
