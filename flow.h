@@ -30,6 +30,7 @@
 #include "flow.h"
 #include "netflowGen.h"
 #include "pTime.h"
+#include "udp.h"
 
 /* Default program settings */
 #define DEFAULT_PORT 2055
@@ -80,10 +81,3 @@ void debugStruct();
  */
 set defaultSettings();
 
-
-/**
- * @brief Init server where flow will be send. sets ip and port 
- * 
- * @return sockaddr_in 
- */
-struct sockaddr_in initServer();

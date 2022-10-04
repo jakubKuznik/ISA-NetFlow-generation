@@ -6,8 +6,8 @@ all: flow
 
 ##########################################################################
 
-flow: args.o flow.o pcapFile.o netflowGen.o pTime.o
-	gcc $(CFLAGS) args.o flow.o pcapFile.o netflowGen.o pTime.o -o flow -lpcap
+flow: args.o flow.o pcapFile.o netflowGen.o pTime.o udp.o
+	gcc $(CFLAGS) args.o flow.o pcapFile.o netflowGen.o pTime.o udp.o -o flow -lpcap
 #gcc $(CFLAGS) args.o flow.o -o ipk-sniffer -lpcap
 
 flow.o: flow.c flow.h 
@@ -25,6 +25,11 @@ netflowGen.o: netflowGen.c netflowGen.h
 
 pTime.o: pTime.c pTime.h
 	gcc $(CFLAGS) -c pTime.c -o pTime.o -lpcap
+
+udp.o: udp.c udp.h
+	gcc $(CFLAGS) -c udp.c -o udp.o -lpcap
+
+
 
 clean:
 	rm *.o flow 

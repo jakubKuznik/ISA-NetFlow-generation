@@ -38,6 +38,11 @@ int main(int argc, char *argv[]) {
     if((flowL = initFlowList()) == NULL)
         goto error2;
 
+    // init collector 
+    struct sockaddr_in * collector = initServer(settings);
+
+
+
     node *temp;
     while(true){
         // read packet 
@@ -115,98 +120,6 @@ error4:
 
 }
 
-
-// TODO CREATE UDP FILE 
-// TODO FUNKCE NA POSILANI DAT 
-// TODO FUNKCE NA OTEVRENI SPOJENI SE SERVEREM 
-// function is inspirated from:  (c) Petr Matousek, 2016
-bool sendUdpFlow(){
-    int sock;                        // socket descriptor
-    int msg_size, i;
-    struct sockaddr_in server, from; // address structures of the server and the client
-    socklen_t len, fromlen;        
-    char buffer[BUFFER];            
-
-    server = initServer();
-
-   
-    //create a client socket
-    if ((sock = socket(AF_INET , SOCK_DGRAM , 0)) == -1)
-        goto errorUDP1;
-     
-    len     = sizeof(server);
-    fromlen = sizeof(from);
-
-    // create a connected UDP socket
-    if (connect(sock, (struct sockaddr *)&server, sizeof(server))  == -1)
-        goto errorUDP2;
-
-    //send data to the server
-    while((msg_size=read(STDIN_FILENO,buffer,BUFFER)) > 0) 
-      // read input data from STDIN (console) until end-of-line (Enter) is pressed
-      // when end-of-file (CTRL-D) is received, n == 0
-    { 
-        i = send(sock,buffer,msg_size,0);     // send data to the server
-        if (i == -1)                   // check if data was sent correctly
-            err(1,"send() failed");
-        else if (i != msg_size)
-            err(1,"send(): buffer written partially");
-
-        // obtain the local IP address and port using getsockname()
-        if (getsockname(sock,(struct sockaddr *) &from, &len) == -1)
-            err(1,"getsockname() failed");
-
-        printf("* Data sent from %s, port %d (%d) to %s, port %d (%d)\n",inet_ntoa(from.sin_addr), ntohs(from.sin_port), from.sin_port, inet_ntoa(server.sin_addr),ntohs(server.sin_port), server.sin_port);
-        
-        // read the answer from the server 
-        if ((i = recv(sock,buffer, BUFFER,0)) == -1)   
-            err(1,"recv() failed");
-        else if (i > 0){
-            // obtain the remote IP adddress and port from the server (cf. recfrom())
-            if (getpeername(sock, (struct sockaddr *)&from, &fromlen) != 0) 
-                err(1,"getpeername() failed\n");
-
-            printf("* UDP packet received from %s, port %d\n",inet_ntoa(from.sin_addr),ntohs(from.sin_port));
-            printf("%.*s",i,buffer);                   // print the answer
-        }
-  } 
-  // reading data until end-of-file (CTRL-D)
-
-  if (msg_size == -1)
-    err(1,"reading failed");
-  close(sock);
-  printf("* Closing the client socket ...\n");
-  
-  return true; 
-
-
-errorUDP1:
-    fprintf(stderr,"ERORR socket failed\n");
-    return false;
-    
-errorUDP2:
-    fprintf(stderr, "ERORR connect() failed\n");
-    return false;
-}
-
-/**
- * @brief Init server where flow will be send. sets ip and port 
- * 
- * @return sockaddr_in 
- */
-struct sockaddr_in initServer(){
-    struct sockaddr_in server;
-
-    memset(&server,0,sizeof(server)); // erase the server structure
-    server.sin_family = AF_INET;                   
-
-    // copy the first parameter to the server.sin_addr structure
-    memcpy(&server.sin_addr, settings.collectorIp , sizeof(uint32_t)); 
-    
-    // server port (network byte order)
-    server.sin_port = settings.collectorPort;
-    return server;    
-}
 
 
 /**
