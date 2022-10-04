@@ -30,7 +30,7 @@ struct packetInfo
   //char srcMask;          // XXX
   //char dstMask;          // XXX
   unsigned int layer3Size; // from IHL 
-  uint16_t packetSize;     // entire packet size  
+  uint16_t packetSize;     // entire packet size without et_header 
   time_t pacTime;
   uint8_t cumulTcpOr;      // cumulative tcp flags or 
   bool ok;            // if ok set to true 

@@ -8,32 +8,6 @@
 
 
 
-/******************   HEADER  ********************************
- 0-1     2-3      4-7       8-11       12-15         16-19          
-version count  SysUptime  unix_secs  unix_nsecs  flow_sequence  
-
-       20            21            22-23
-   engine_type   engine_id   sampling_interval 
-***************************************************************/
-void NFGenerateHeader(){
-  printf(" ");
-}
-
-
-/******************  RECORD FORMAT ************************
-  0-3       4-7      8-11    12-13   14-15   16-19    20-23    
- srcaddr  dst-addr  nexthop  input   output  dPkts  dOctents
-
-  24-27    28-31     32-33    34-35     36       37      38
-  firts    Last     srcport  dstport   pad1   tcpflags  port
-
-   39    40-41    42-43      44        45       46-47
-  tos    src_as   dst_as  src_mask  dst_mask    pad2 
-************************************************************/
-void NFGeneratePayload(){
-    printf(" ");
-}
-
 /**
  * @brief Free initFlowList struct 
  */
@@ -96,6 +70,13 @@ flowList * initFlowList(){
     return flowL;
 }
 
+/******************   HEADER  ********************************
+ 0-1     2-3      4-7       8-11       12-15         16-19          
+version count  SysUptime  unix_secs  unix_nsecs  flow_sequence  
+
+       20            21            22-23
+   engine_type   engine_id   sampling_interval 
+***************************************************************/
 /**
  * @brief Create a flow header
  * 
@@ -107,14 +88,42 @@ NFHeader *createHeader(){
     if (header == NULL)
         return NULL;
     
-    header->version     = NF_VERSION;
-    header->count       = FLOWS_IN_PACKETS;
-    header->sysUpTime   = getBootTime();
-    header->unixSecs    = getUTCinSec();
-    header->unixNSecs   = getUTCinNsec();
-    return header; 
+    header->version          = NF_VERSION;
+    header->count            = FLOWS_IN_PACKETS;
+    header->sysUpTime        = getBootTime();
+    header->unixSecs         = getUTCinSec();
+    header->unixNSecs        = getUTCinNsec();
+    header->flowSequence     = 0;
+    header->engineType       = UNKNOWN;
+    header->engineId         = UNKNOWN;
+    header->samplingInterval = UNKNOWN;
+    return header;
 }
 
+/**
+ * @brief Use this function before flow send!
+ * 
+ * @param header 
+ */
+void updateHeader(NFHeader *header, uint32_t *totalFlows){
+    *totalFlows++;
+    header->sysUpTime        = getBootTime();
+    header->unixSecs         = getUTCinSec();
+    header->unixNSecs        = getUTCinNsec();
+    header->flowSequence     = *totalFlows;
+}
+
+
+/******************  RECORD FORMAT ************************
+  0-3       4-7      8-11    12-13   14-15   16-19    20-23    
+ srcaddr  dst-addr  nexthop  input   output  dPkts  dOctents
+
+  24-27    28-31     32-33    34-35     36       37      38
+  firts    Last     srcport  dstport   pad1   tcpflags  port
+
+   39    40-41    42-43      44        45       46-47
+  tos    src_as   dst_as  src_mask  dst_mask    pad2 
+************************************************************/
 /**
  * @brief Create a netflow Payload 
  * 
@@ -134,7 +143,7 @@ NFPayload *createPayload(struct packetInfo packet){
     payload->input    = UNKNOWN;
     payload->output   = UNKNOWN;
     payload->dPkts    = 1; 
-    payload->dOctents = packet.layer3Size; // TODO maybe wrong 
+    payload->dOctents = packet.packetSize; // packet size without eth header  
     payload->firts    = packet.pacTime;    
     payload->last     = packet.pacTime;    // has to update every packet 
     payload->srcPort  = packet.srcPort;
@@ -160,10 +169,35 @@ NFPayload *createPayload(struct packetInfo packet){
  */
 void updatePayload(NFPayload *payload, struct packetInfo packet){
     payload->dPkts++;
-    payload->dOctents += packet.layer3Size;
+    payload->dOctents += packet.packetSize;
     payload->last = packet.pacTime;
 }
 
+/**
+ * @brief 
+ * 
+ * @param flowL 
+ * @param packetTime 
+ * @param timer  
+ * @return true if ok
+ * @return false if error 
+ */
+bool appplyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
+    return true;
+}
+
+/**
+ * @brief 
+ * 
+ * @param flowL 
+ * @param packetTime
+ * @param timer  
+ * @return true if okay 
+ * @return false if error 
+ */
+bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
+    return true;
+}
 
 /**
  * @brief Create a Flow object
@@ -175,8 +209,9 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
  * @return false if error  
  */
 bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
-    node *newNode;
 
+
+    node *newNode;
     // if empty 
     if (flowL->first == NULL){
         newNode = malloc(sizeof(node));
@@ -184,9 +219,6 @@ bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
             return false;
         newNode->next = NULL;
         newNode->prev = NULL;
-
-        
-        
 
     }
 
@@ -198,7 +230,31 @@ bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
 
 }
 
+/**
+ * @brief find if packet is related to some existing flow 
+ * 
+ * @param flowL 
+ * @param pacInfo 
+ * @return node that is related to packet 
+ * @return NULL if there is no related packet 
+ */
+node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
+    node * temp = flowL->first;
+    while (temp != NULL){
+        if (pacInfo->srcAddr  == temp->data.nfpayload.srcAddr \ 
+        &&  pacInfo->dstAddr  == temp->data.nfpayload.dstAddr \
+        &&  pacInfo->srcPort  == temp->data.nfpayload.srcPort \
+        &&  pacInfo->dstPort  == temp->data.nfpayload.dstPort \
+        &&  pacInfo->protocol == temp->data.nfpayload.prot )
+            return temp;
+        if (temp->next == NULL)
+            break;
+        else
+            temp = temp->next;
+    }
 
+    return NULL;
+}
 
 void freeFlowList(flowList *flowL){
     //node *firs 

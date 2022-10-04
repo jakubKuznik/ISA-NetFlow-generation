@@ -171,8 +171,6 @@ void updatePayload(NFPayload *payload, struct packetInfo packet);
  */
 NFPayload *createPayload(struct packetInfo packet);
 
-
-
 /**
  * @brief Create a flow header
  * 
@@ -180,3 +178,43 @@ NFPayload *createPayload(struct packetInfo packet);
  * @return NULL if malloc error 
  */
 NFHeader *createHeader();
+
+/**
+ * @brief Use this function before flow send!
+ * 
+ * @param header 
+ */
+void updateHeader(NFHeader *header, uint32_t *totalFlows);
+
+/**
+ * @brief find if packet is related to some existing flow 
+ * 
+ * @param flowL 
+ * @param pacInfo 
+ * @return node that is related to packet 
+ * @return NULL if there is no related packet 
+ */
+node *findIfExists(flowList * flowL, struct packetInfo * pacInfo);
+
+
+/**
+ * @brief 
+ * 
+ * @param flowL 
+ * @param packetTime 
+ * @param timer  
+ * @return true if ok
+ * @return false if error 
+ */
+bool appplyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);
+
+/**
+ * @brief 
+ * 
+ * @param flowL 
+ * @param packetTime
+ * @param timer  
+ * @return true if okay 
+ * @return false if error 
+ */
+bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);

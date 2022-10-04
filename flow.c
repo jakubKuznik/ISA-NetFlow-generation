@@ -13,9 +13,11 @@
 // GLOBAL settings variable
 set settings;
 
+
 int main(int argc, char *argv[]) {
 
-    printf("... %li ... %li...\n",getUTCinSec(), getUTCinNsec());
+    // flow counter every time flow is send ++
+    uint32_t totalFlows = 0;
 
     debugStruct();
     // set program settings 
@@ -36,13 +38,33 @@ int main(int argc, char *argv[]) {
     if((flowL = initFlowList()) == NULL)
         goto error2;
 
+    node *temp;
     while(true){
-
         // read packet 
         *pacInfo = proccessPacket(pcap);
         if (pacInfo->ok == false)
             break;
-        
+
+        // apply active timer -a -> clean flows 
+        if (applyActiveTimer(flowL, pacInfo->pacTime, settings.timerActive) == false)
+            goto error4;
+
+        // apply inactive timer -i -> clean flows
+        if (appplyInactiveTimer(flowL, pacInfo->pacTime, settings.interval))
+            goto error4;
+
+
+        // if flow for that already exist     
+        if ((temp = findIfExists(flowL, pacInfo)) != NULL){
+            updatePayload(&temp->data.nfpayload, *pacInfo);
+            break;
+        }        
+
+        // delete the oldest one 
+        if (flowL->size >= settings.cacheSize){
+            printf("1");
+        }
+
         if (createFlow(flowL, pacInfo) == false)
             goto error3;
         
@@ -81,6 +103,13 @@ error3:
     freeInitFlowList(flowL);
     pcap_close(pcap);
     fprintf(stderr, "ERROR, malloc error\n");
+    return 2;
+
+error4:
+    free(pacInfo);
+    freeInitFlowList(flowL);
+    pcap_close(pcap);
+    fprintf(stderr, "ERROR\n");
     return 2;
 
 

@@ -82,7 +82,7 @@ packetInfo proccessPacket(pcap_t *pcap){
       }
     }
     pacInfo.pacTime = frameTime;
-    
+    pacInfo.ok = true; 
     debugPktStruct(pacInfo);
 
 
