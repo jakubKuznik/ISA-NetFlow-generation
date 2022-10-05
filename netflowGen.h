@@ -28,9 +28,9 @@ struct NFHeader{
   // todo review if anything can be const 
   uint16_t version;
   uint16_t count;
-  time_t sysUpTime;      // this has to be updated 
-  time_t unixSecs;       // this has to be updated 
-  time_t unixNSecs;      // this has to be updated 
+  uint32_t sysUpTime;      // this has to be updated 
+  uint32_t unixSecs;       // this has to be updated 
+  uint32_t unixNSecs;      // this has to be updated 
   uint32_t flowSequence; // this has to be updated 
   uint8_t engineType;
   uint8_t engineId;
@@ -187,7 +187,7 @@ NFHeader *createHeader();
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t *totalFlows);
+void updateHeader(NFHeader *header, uint32_t totalFlows);
 
 /**
  * @brief find if packet is related to some existing flow 
@@ -230,3 +230,11 @@ bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);
  * @return NULL if error 
  */
 node *createNode(struct packetInfo *pacInfo);
+
+
+/**
+ * @brief htons every variable in flow  
+ * 
+ * @param nf 
+ */
+void htonsFlow(netFlow *nf);

@@ -75,12 +75,11 @@ NFHeader *createHeader(){
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t *totalFlows){
-    *totalFlows++;
+void updateHeader(NFHeader *header, uint32_t totalFlows){
     header->sysUpTime        = getBootTime();
     header->unixSecs         = getUTCinSec();
     header->unixNSecs        = getUTCinNsec();
-    header->flowSequence     = *totalFlows;
+    header->flowSequence     = totalFlows;
 }
 
 
@@ -107,6 +106,8 @@ NFPayload *createPayload(struct packetInfo packet){
     if (payload == NULL)
         return NULL;
 
+    printf("-----------  %u --------",packet.dstAddr)    ;
+    printf("-----------  %u --------",packet.srcAddr)    ;
     payload->srcAddr  = packet.srcAddr;
     payload->dstAddr  = packet.dstAddr;
     payload->nextHop  = UNKNOWN;
@@ -278,6 +279,38 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
     return NULL;
 }
 
+/**
+ * @brief htons every variable in flow  
+ * 
+ * @param nf 
+ */
+void htonsFlow(netFlow *nf){
+    nf->nfheader->version           = htons(nf->nfheader->version);
+    nf->nfheader->count             = htons(nf->nfheader->count);
+    nf->nfheader->sysUpTime         = htonl(nf->nfheader->sysUpTime);
+    nf->nfheader->unixSecs          = htonl(nf->nfheader->unixSecs);
+    nf->nfheader->unixNSecs         = htonl(nf->nfheader->unixNSecs);
+    nf->nfheader->flowSequence      = htonl(nf->nfheader->flowSequence);
+    nf->nfheader->engineType        = htons(nf->nfheader->engineType);
+    nf->nfheader->engineId          = htons(nf->nfheader->engineId);
+    nf->nfheader->samplingInterval  = htons(nf->nfheader->samplingInterval);
 
-
-
+    nf->nfpayload->nextHop          = htonl(nf->nfpayload->nextHop);
+    nf->nfpayload->input            = htons(nf->nfpayload->input);
+    nf->nfpayload->output           = htons(nf->nfpayload->output);
+    nf->nfpayload->dPkts            = htonl(nf->nfpayload->dPkts);
+    nf->nfpayload->dOctents         = htonl(nf->nfpayload->dOctents);
+    nf->nfpayload->firts            = htonl(nf->nfpayload->firts);
+    nf->nfpayload->last             = htonl(nf->nfpayload->last);
+    nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
+    nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
+    nf->nfpayload->pad1             = htons(nf->nfpayload->pad1);
+    nf->nfpayload->tcpFlags         = htons(nf->nfpayload->tcpFlags);
+    nf->nfpayload->prot             = htons(nf->nfpayload->prot);
+    nf->nfpayload->tos              = htons(nf->nfpayload->tos);
+    nf->nfpayload->srcAs            = htons(nf->nfpayload->srcAs);
+    nf->nfpayload->dstAs            = htons(nf->nfpayload->dstAs);
+    nf->nfpayload->srcMask          = htons(nf->nfpayload->srcMask);
+    nf->nfpayload->dstMask          = htons(nf->nfpayload->dstMask);
+    nf->nfpayload->pad2             = htons(nf->nfpayload->pad2);
+}

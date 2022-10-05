@@ -73,6 +73,8 @@ int main(int argc, char *argv[]) {
 
         if (createFlow(flowL, pacInfo) == false)
             goto error3;
+        else 
+            break;
         
         
         // parse data from packet to struct 
@@ -83,6 +85,7 @@ int main(int argc, char *argv[]) {
         */
 
     }
+    updateHeader(flowL->first->data->nfheader, ++totalFlows );
     sendUdpFlow(settings, flowL->first->data, collector);
 
     free(pacInfo);

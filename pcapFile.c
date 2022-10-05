@@ -104,8 +104,8 @@ packetInfo icmpPacketInfo(const u_char *frame){
 
   pacInfo.protocol = ICMP;
   pacInfo.tos = ip_header->ip_tos;
-  pacInfo.srcAddr = inet_ntoa(ip_header->ip_src);
-  pacInfo.dstAddr = inet_ntoa(ip_header->ip_dst);
+  pacInfo.srcAddr = ip_header->ip_src.s_addr;
+  pacInfo.dstAddr = ip_header->ip_dst.s_addr;
   pacInfo.srcPort = 0;
   pacInfo.dstPort = 0;
   pacInfo.layer3Size = ip_header->ip_hl;

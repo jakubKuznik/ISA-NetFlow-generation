@@ -14,59 +14,44 @@ bool sendUdpFlow(struct set settings, struct netFlow * nf, struct sockaddr_in *s
     socklen_t len, fromlen;        
     char buffer[BUFFER];            
 
-   
-     
     len     = sizeof(server);
     fromlen = sizeof(from);
 
     int clientSock = startConnection(*server);
-    i = send(clientSock, &nf->nfheader->count, sizeof(nf->nfheader->count), 0);
 
-    char *message = malloc(sizeof(char) * (NF_HEADER_SIZE + NF_PAYLOA_SIZE));
-    printf("\n.......STRING %s .....\n",message);
-    memcpy(message, nf->nfheader->version, sizeof(nf->nfheader->version));
-    message = message + sizeof(nf->nfheader->version) ;
 
-    printf("\n.......STRING %s .....\n",message);
-    //i = send(sock, )
+    char message[NF_HEADER_SIZE + NF_PAYLOA_SIZE] = "";
+    char * pt = &message; // pointer to first element of array 
+
+
+    printf(".... %d %d %d %d %d %d %d %d %d ... ",nf->nfheader->version, nf->nfheader->count, nf->nfheader->sysUpTime, nf->nfheader->unixSecs, nf->nfheader->unixNSecs, nf->nfheader->flowSequence, nf->nfheader->engineType, nf->nfheader->engineId, nf->nfheader->samplingInterval);
+    htonsFlow(nf);
+    printf(".... %d %d %d %d %d %d %d %d %d ... ",nf->nfheader->version, nf->nfheader->count, nf->nfheader->sysUpTime, nf->nfheader->unixSecs, nf->nfheader->unixNSecs, nf->nfheader->flowSequence, nf->nfheader->engineType, nf->nfheader->engineId, nf->nfheader->samplingInterval);
+    //nf->nfheader->count = htons(1);
+
+    memcpy(pt, &nf->nfheader->version, NF_HEADER_SIZE);
+    pt = pt + NF_HEADER_SIZE;
+    memcpy(pt, &nf->nfpayload->srcAddr, NF_PAYLOA_SIZE);
+
     /*
-    //send data to the server
-    while((msg_size=read(STDIN_FILENO,buffer,BUFFER)) > 0) 
-      // read input data from STDIN (console) until end-of-line (Enter) is pressed
-      // when end-of-file (CTRL-D) is received, n == 0
-    { 
-        i = send(sock,buffer,msg_size,0);     // send data to the server
-        if (i == -1)                   // check if data was sent correctly
-            err(1,"send() failed");
-        else if (i != msg_size)
-            err(1,"send(): buffer written partially");
+    printf("\n......  ");
+    for (int i = 0; i < NF_HEADER_SIZE + NF_PAYLOA_SIZE; i++)
+        printf("%d",message[i]);
+    printf("  ........\n");
+    */
 
-        // obtain the local IP address and port using getsockname()
-        if (getsockname(sock,(struct sockaddr *) &from, &len) == -1)
-            err(1,"getsockname() failed");
 
-        
-        // read the answer from the server 
-        if ((i = recv(sock,buffer, BUFFER,0)) == -1)   
-            err(1,"recv() failed");
-        else if (i > 0){
-            // obtain the remote IP adddress and port from the server (cf. recfrom())
-            if (getpeername(sock, (struct sockaddr *)&from, &fromlen) != 0) 
-                err(1,"getpeername() failed\n");
+    i = send(clientSock, &message, NF_HEADER_SIZE + NF_PAYLOA_SIZE, 0);
+    if (i == -1)
+        fprintf(stderr, "ERROR: send data to collector failed\n");
+    else if (i != NF_HEADER_SIZE + NF_PAYLOA_SIZE)
+        fprintf(stderr, "ERROR: send(): buffer written partially\n");
 
-            printf("* UDP packet received from %s, port %d\n",inet_ntoa(from.sin_addr),ntohs(from.sin_port));
-            printf("%.*s",i,buffer);                   // print the answer
-        }
-  } 
-  */
-  // reading data until end-of-file (CTRL-D)
 
-  free(message);
   return true; 
-
-
-    
 }
+
+
 
 /**
  * @brief establish connection with server using  connect() 
@@ -113,6 +98,6 @@ struct sockaddr_in * initServer(struct set settings){
     server->sin_addr.s_addr = settings.collectorIp;
 
     // server port (network byte order)
-    server->sin_port = settings.collectorPort;
+    server->sin_port = htons(settings.collectorPort);
     return server;
 }
