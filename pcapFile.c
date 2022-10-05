@@ -60,7 +60,7 @@ packetInfo proccessPacket(pcap_t *pcap){
     // get time and interface from pcap 
     time_t frameTime = pacHeader.ts.tv_sec;
 
-    debugPktStruct(pacInfo);
+    //debugPktStruct(pacInfo);
 
     // ip + icmp
     if (ntohs(ethHeader->ether_type) == ETHERTYPE_IP){
@@ -83,7 +83,7 @@ packetInfo proccessPacket(pcap_t *pcap){
     }
     pacInfo.pacTime = frameTime;
     pacInfo.ok = true; 
-    debugPktStruct(pacInfo);
+    //debugPktStruct(pacInfo);
 
 
 

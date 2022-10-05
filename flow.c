@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
 
     // init collector 
     struct sockaddr_in * collector = initServer(settings);
-
-
+    if (collector == NULL)
+        goto error3;
 
     node *temp;
     while(true){
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
         */
 
     }
-
+    sendUdpFlow(settings, flowL->first->data, collector);
 
     free(pacInfo);
     freeInitFlowList(flowL);

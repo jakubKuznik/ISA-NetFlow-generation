@@ -13,6 +13,9 @@
 #define UNKNOWN 0
 #define FLOWS_IN_PACKETS 1
 
+#define NF_HEADER_SIZE 24
+#define NF_PAYLOA_SIZE 48
+
 
 /******************   HEADER  ********************************
  0-1     2-3      4-7       8-11       12-15         16-19          

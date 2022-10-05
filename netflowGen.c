@@ -17,14 +17,6 @@ void freeInitFlowList(flowList *flowL){
     if (flowL->first != NULL){
         free(flowL->first);
     }
-    /*
-    if (flowL->first != NULL){
-        free(flowL->first);
-    }
-    if (flowL->first != NULL){
-        free(flowL->first);
-    }
-    */
     free(flowL);
 }
 
@@ -39,28 +31,6 @@ flowList * initFlowList(){
     if (flowL == NULL)
         return NULL;
 
-    /*
-    flowL->current = malloc(sizeof(node *));
-    if (flowL->current == NULL){
-        free(flowL);
-        return NULL;
-    }
-    
-    flowL->first = malloc(sizeof(node *));
-    if (flowL->current == NULL){
-        free(flowL);
-        free(flowL->current);
-        return NULL;
-    }
-    
-    flowL->last = malloc(sizeof(node *));
-    if (flowL->current == NULL){
-        free(flowL);
-        free(flowL->current);
-        free(flowL->first);
-        return NULL;
-    }
-    */
 
     flowL->current = NULL;
     flowL->first   = NULL;
@@ -254,7 +224,7 @@ node *createNode(struct packetInfo *pacInfo){
     if (temp == NULL)
         return NULL;
 
-    temp->data = malloc(sizeof(flowList));
+    temp->data = malloc(sizeof(netFlow) + sizeof(NFPayload) + sizeof(NFHeader));
     if (temp->data == NULL){
         free (temp);
         return NULL;
@@ -293,7 +263,7 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
     if (temp == NULL)
         return NULL;
     while (temp != NULL){
-        if (pacInfo->srcAddr  == temp->data->nfpayload->srcAddr \ 
+        if (pacInfo->srcAddr  == temp->data->nfpayload->srcAddr  
         &&  pacInfo->dstAddr  == temp->data->nfpayload->dstAddr \
         &&  pacInfo->srcPort  == temp->data->nfpayload->srcPort \
         &&  pacInfo->dstPort  == temp->data->nfpayload->dstPort \

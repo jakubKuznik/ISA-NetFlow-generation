@@ -8,18 +8,26 @@
 
 
 // function is inspirated from:  (c) Petr Matousek, 2016
-bool sendUdpFlow(struct set settings, netFlow nf, int clientSock, struct sockaddr_in *server){
+bool sendUdpFlow(struct set settings, struct netFlow * nf, struct sockaddr_in *server){
     int msg_size, i;
     struct sockaddr_in from; // address structures of the server and the client
     socklen_t len, fromlen;        
     char buffer[BUFFER];            
 
-    int sock = 
    
      
     len     = sizeof(server);
     fromlen = sizeof(from);
 
+    int clientSock = startConnection(*server);
+    i = send(clientSock, &nf->nfheader->count, sizeof(nf->nfheader->count), 0);
+
+    char *message = malloc(sizeof(char) * (NF_HEADER_SIZE + NF_PAYLOA_SIZE));
+    printf("\n.......STRING %s .....\n",message);
+    memcpy(message, nf->nfheader->version, sizeof(nf->nfheader->version));
+    message = message + sizeof(nf->nfheader->version) ;
+
+    printf("\n.......STRING %s .....\n",message);
     //i = send(sock, )
     /*
     //send data to the server
@@ -53,6 +61,7 @@ bool sendUdpFlow(struct set settings, netFlow nf, int clientSock, struct sockadd
   */
   // reading data until end-of-file (CTRL-D)
 
+  free(message);
   return true; 
 
 
@@ -93,14 +102,17 @@ errorUDP2:
  * @brief Init server where flow will be send. sets ip and port 
  * 
  * @return sockaddr_in 
+ * @return NULL if error  
  */
 struct sockaddr_in * initServer(struct set settings){
-    struct sockaddr_in *server;
+    struct sockaddr_in *server = malloc(sizeof(struct sockaddr_in));
+    if (server == NULL)
+        return NULL;
 
-    server->sin_family = AF_INET;                   
+    server->sin_family = AF_INET;
     server->sin_addr.s_addr = settings.collectorIp;
-    
+
     // server port (network byte order)
     server->sin_port = settings.collectorPort;
-    return server;    
+    return server;
 }

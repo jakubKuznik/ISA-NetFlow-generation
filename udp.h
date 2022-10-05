@@ -17,7 +17,7 @@
 struct sockaddr_in * initServer(struct set settings);
 
 
-bool sendUdpFlow(struct set settings, netFlow nf, int clientSock, struct sockaddr_in *server);
+bool sendUdpFlow(struct set settings, struct netFlow *nf, struct sockaddr_in *server);
 
 /**
  * @brief establish connection with server using  connect() 
