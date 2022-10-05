@@ -106,8 +106,6 @@ NFPayload *createPayload(struct packetInfo packet){
     if (payload == NULL)
         return NULL;
 
-    printf("-----------  %u --------",packet.dstAddr)    ;
-    printf("-----------  %u --------",packet.srcAddr)    ;
     payload->srcAddr  = packet.srcAddr;
     payload->dstAddr  = packet.dstAddr;
     payload->nextHop  = UNKNOWN;
@@ -295,6 +293,8 @@ void htonsFlow(netFlow *nf){
     nf->nfheader->engineId          = htons(nf->nfheader->engineId);
     nf->nfheader->samplingInterval  = htons(nf->nfheader->samplingInterval);
 
+    nf->nfpayload->srcAddr          = htonl(nf->nfpayload->srcAddr);
+    nf->nfpayload->dstAddr          = htonl(nf->nfpayload->dstAddr);
     nf->nfpayload->nextHop          = htonl(nf->nfpayload->nextHop);
     nf->nfpayload->input            = htons(nf->nfpayload->input);
     nf->nfpayload->output           = htons(nf->nfpayload->output);
@@ -302,8 +302,12 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->dOctents         = htonl(nf->nfpayload->dOctents);
     nf->nfpayload->firts            = htonl(nf->nfpayload->firts);
     nf->nfpayload->last             = htonl(nf->nfpayload->last);
+    
+    printf(",,,, %d %d ,,,,",nf->nfpayload->srcPort, nf->nfpayload->dstPort);
     nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
     nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
+    printf(",,,, %d %d ,,,,",nf->nfpayload->srcPort, nf->nfpayload->dstPort);
+    
     nf->nfpayload->pad1             = htons(nf->nfpayload->pad1);
     nf->nfpayload->tcpFlags         = htons(nf->nfpayload->tcpFlags);
     nf->nfpayload->prot             = htons(nf->nfpayload->prot);
