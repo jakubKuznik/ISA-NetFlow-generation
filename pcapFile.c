@@ -110,6 +110,7 @@ packetInfo icmpPacketInfo(const u_char *frame){
   pacInfo.dstPort = 0;
   pacInfo.layer3Size = ntohl(ip_header->ip_hl);
   pacInfo.packetSize = ntohs(ip_header->ip_len);
+  pacInfo.cumulTcpOr = 0;
 
   return pacInfo; 
 }
@@ -130,10 +131,14 @@ packetInfo tcpPacketInfo(const u_char *frame){
   pacInfo.tos = ntohs(ipHeader->ip_tos);
   pacInfo.srcAddr = ntohl(ipHeader->ip_src.s_addr);
   pacInfo.dstAddr = ntohl(ipHeader->ip_dst.s_addr);
-  pacInfo.srcPort = ntohs(tcpHeader->source);
-  pacInfo.dstPort = ntohs(tcpHeader->dest);
   pacInfo.layer3Size = ntohl(ipHeader->ip_hl);
   pacInfo.packetSize = ntohs(ipHeader->ip_len);
+
+  pacInfo.srcPort = ntohs(tcpHeader->source);
+  pacInfo.dstPort = ntohs(tcpHeader->dest);
+
+  pacInfo.cumulTcpOr = tcpHeader->th_flags;
+
 
   return pacInfo; 
 }
@@ -160,6 +165,7 @@ packetInfo udpPacketInfo(const u_char *frame){
   
   pacInfo.srcPort = ntohs(udpHeader->source);
   pacInfo.dstPort = ntohs(udpHeader->dest);
+  pacInfo.cumulTcpOr = 0;
 
   return pacInfo; 
 }

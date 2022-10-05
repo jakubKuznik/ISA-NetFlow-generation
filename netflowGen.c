@@ -118,7 +118,7 @@ NFPayload *createPayload(struct packetInfo packet){
     payload->srcPort  = packet.srcPort;
     payload->dstPort  = packet.dstPort;
     payload->pad1     = 0;
-    payload->tcpFlags = packet.cumulTcpOr;
+    payload->tcpFlags = packet.cumulTcpOr ;
     payload->prot     = packet.protocol;
     payload->tos      = packet.tos;
     payload->srcAs    = UNKNOWN;
@@ -140,6 +140,7 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
     payload->dPkts++;
     payload->dOctents += packet.packetSize;
     payload->last = packet.pacTime;
+    payload->tcpFlags = payload->tcpFlags | packet.cumulTcpOr ;
 }
 
 /**
@@ -302,14 +303,10 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->dOctents         = htonl(nf->nfpayload->dOctents);
     nf->nfpayload->firts            = htonl(nf->nfpayload->firts);
     nf->nfpayload->last             = htonl(nf->nfpayload->last);
-    
-    printf(",,,, %d %d ,,,,",nf->nfpayload->srcPort, nf->nfpayload->dstPort);
     nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
     nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
-    printf(",,,, %d %d ,,,,",nf->nfpayload->srcPort, nf->nfpayload->dstPort);
-    
     nf->nfpayload->pad1             = htons(nf->nfpayload->pad1);
-    nf->nfpayload->tcpFlags         = htons(nf->nfpayload->tcpFlags);
+    nf->nfpayload->tcpFlags         = nf->nfpayload->tcpFlags;
     nf->nfpayload->prot             = htons(nf->nfpayload->prot);
     nf->nfpayload->tos              = htons(nf->nfpayload->tos);
     nf->nfpayload->srcAs            = htons(nf->nfpayload->srcAs);

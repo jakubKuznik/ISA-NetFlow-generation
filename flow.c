@@ -61,10 +61,11 @@ int main(int argc, char *argv[]) {
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
-            printf("\n*****HIHI*******\n");
             updatePayload(&temp->data->nfpayload, *pacInfo);
             continue;;
-        }        
+        }
+
+        // if (todo check tcp fin flag)        
 
         // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize){
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]) {
         */
 
     }
-    updateHeader(flowL->first->data->nfheader, ++totalFlows );
+    updateHeader(flowL->first->data->nfheader, ++totalFlows);
     sendUdpFlow(settings, flowL->first->data, collector);
 
     free(pacInfo);
