@@ -17,7 +17,8 @@ set settings;
 int main(int argc, char *argv[]) {
 
     // flow counter every time flow is send ++
-    uint32_t totalFlows = 0;
+    int i = 0;
+    uint32_t *totalFlows = &i;
 
     debugStruct();
     // set program settings 
@@ -51,43 +52,38 @@ int main(int argc, char *argv[]) {
             break;
 
         // apply active timer -a -> clean flows 
-        if (applyActiveTimer(flowL, pacInfo->pacTime, settings.timerActive) == false)
+        if (applyActiveTimer(flowL, pacInfo->pacTime, settings.timerActive, collector, totalFlows) == false)
             goto error4;
 
         // apply inactive timer -i -> clean flows
-        if (appplyInactiveTimer(flowL, pacInfo->pacTime, settings.interval) == false)
+        if (applyInactiveTimer(flowL, pacInfo->pacTime, settings.interval, collector, totalFlows) == false)
             goto error4;
 
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
-            updatePayload(&temp->data->nfpayload, *pacInfo);
+            updatePayload(temp->data->nfpayload, *pacInfo);
             continue;;
         }
 
         // if (todo check tcp fin flag)        
 
         // delete the oldest one if cache is full  
-        if (flowL->size >= settings.cacheSize){
-            printf("1");
-        }
+        if (flowL->size >= settings.cacheSize)
+            deleteOldest(flowL, collector, totalFlows);
+
 
         if (createFlow(flowL, pacInfo) == false)
-            goto error3;
-        else 
-            break;
-        
-        
-        // parse data from packet to struct 
-        /*
-        proccess_packet();
-        generate_netflow();
-        send_netflow();
-        */
+            goto error3;     
+
 
     }
-    updateHeader(flowL->first->data->nfheader, ++totalFlows);
-    sendUdpFlow(settings, flowL->first->data, collector);
+
+    //export all 
+    while (flowL->first != NULL){
+        deleteOldest(flowL, collector, totalFlows);
+        printf("\nwuiii %d\n",i);
+    }
 
     free(pacInfo);
     freeInitFlowList(flowL);
@@ -123,6 +119,8 @@ error4:
 
 
 }
+
+
 
 
 

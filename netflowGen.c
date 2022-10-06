@@ -6,6 +6,35 @@
 
 #include "netflowGen.h"
 
+/**
+ * @brief Delete node from flowList 
+ * 
+ * @param flowL 
+ * @param node 
+ */
+void deleteNode(flowList *flowL, node *node){
+    if (flowL->size == 0)
+        return;
+    
+    if (node == NULL)
+        return;
+
+
+    if (flowL->first == node){
+        flowL->first = node->next;
+    }
+    else if (flowL->last == node){
+        flowL->last = node->prev;
+    }
+    else{
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+    }
+    free(node->data->nfheader);
+    free(node->data->nfpayload);
+    free(node->data);
+    flowL->size--;
+}
 
 
 /**
@@ -106,6 +135,7 @@ NFPayload *createPayload(struct packetInfo packet){
     if (payload == NULL)
         return NULL;
 
+
     payload->srcAddr  = packet.srcAddr;
     payload->dstAddr  = packet.dstAddr;
     payload->nextHop  = UNKNOWN;
@@ -113,7 +143,7 @@ NFPayload *createPayload(struct packetInfo packet){
     payload->output   = UNKNOWN;
     payload->dPkts    = 1; 
     payload->dOctents = packet.packetSize; // packet size without eth header  
-    payload->firts    = packet.pacTime;    
+    payload->first    = packet.pacTime;    
     payload->last     = packet.pacTime;    // has to update every packet 
     payload->srcPort  = packet.srcPort;
     payload->dstPort  = packet.dstPort;
@@ -138,37 +168,114 @@ NFPayload *createPayload(struct packetInfo packet){
  */
 void updatePayload(NFPayload *payload, struct packetInfo packet){
     payload->dPkts++;
-    payload->dOctents += packet.packetSize;
+    payload->dOctents = payload->dOctents + packet.packetSize;
     payload->last = packet.pacTime;
     payload->tcpFlags = payload->tcpFlags | packet.cumulTcpOr ;
 }
 
 /**
- * @brief 
+ * @brief Check if some of flows are to old, if yes export and delete them  
  * 
- * @param flowL 
- * @param packetTime 
- * @param timer  
+ * @param flowL list of all flows 
+ * @param packetTime time for checking 
+ * @param timer -a 
+ * @param set all the settings 
+ * @param collector colector ip add 
+ * @param totalFlows each time flow is exported increment this  
  * @return true if ok
  * @return false if error 
  */
-bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
+bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
+                    struct sockaddr_in *collector, uint32_t *totalFlows){
+    node* node = flowL->first;
+    while (node != NULL){
+        printf("\nFirst: %d Curre: %d timer %d last-first %d \n",node->data->nfpayload->first, packetTime, timer, (packetTime - node->data->nfpayload->first));
+        
+        if ((packetTime - node->data->nfpayload->first) > timer){
+            *totalFlows = *totalFlows + 1;
+            updateHeader(node->data->nfheader, totalFlows);
+            if(sendUdpFlow(node->data, collector) == false){
+                deleteAllNodes(flowL);
+                return false;
+
+            }
+            deleteNode(flowL, node);
+        }
+        node = node->next;
+    }
+    return true;
+}
+
+
+/**
+ * @brief Check if some of flows are to old, if yes export and delete them  
+ * 
+ * @param flowL list of all flows 
+ * @param packetTime time for checking 
+ * @param timer -a 
+ * @param set all the settings 
+ * @param collector colector ip add 
+ * @param totalFlows each time flow is exported increment this  
+ * @return true if ok
+ * @return false if error 
+ */
+bool applyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
+                    struct sockaddr_in *collector, uint32_t *totalFlows){
+    node* node = flowL->first;
+    while (node != NULL){
+        printf("\nFirst: %d Curre: %d timer %d last-first %d \n",node->data->nfpayload->first, packetTime, timer, (packetTime - node->data->nfpayload->first));
+        
+        if ((packetTime - node->data->nfpayload->last) > timer){
+            *totalFlows = *totalFlows + 1;
+            updateHeader(node->data->nfheader, totalFlows);
+            if(sendUdpFlow(node->data, collector) == false){
+                deleteAllNodes(flowL);
+                return false;
+            }
+            deleteNode(flowL, node);
+        }
+        node = node->next;
+    }
     return true;
 }
 
 /**
- * @brief 
+ * @brief delete oldest flow in list
+ * @param flowL list of all flows 
+ * @param collector collector ip 
+ * @param totalFlows number of flows already exported 
+ * @return true if ok 
  * 
- * @param flowL 
- * @param packetTime
- * @param timer  
- * @return true if okay 
- * @return false if error 
  */
-bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer){
-    return true;
-}
+bool deleteOldest(flowList *flowL, \
+                struct sockaddr_in *collector, uint32_t *totalFlows){
+    if (flowL->first == NULL)
+        return true;
 
+
+    node *oldNode   = flowL->first;
+    node *node      = flowL->first; 
+    uint32_t oldest = flowL->first->data->nfpayload->first; 
+
+    // find the oldest one 
+    while (node != NULL){
+        if (node->data->nfpayload->last < oldest){
+            oldest = node->data->nfpayload->last;
+            oldNode = node;
+        }
+
+        node = node->next;
+    }
+    (*totalFlows)++;
+    updateHeader(oldNode->data->nfheader, totalFlows);
+    if(sendUdpFlow(oldNode->data, collector) == false){
+        deleteAllNodes(flowL);
+        return false;
+    }
+    deleteNode(flowL, oldNode);
+    
+    return true; 
+}
 
 /**
  * @brief Create a Flow object
@@ -301,7 +408,7 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->output           = htons(nf->nfpayload->output);
     nf->nfpayload->dPkts            = htonl(nf->nfpayload->dPkts);
     nf->nfpayload->dOctents         = htonl(nf->nfpayload->dOctents);
-    nf->nfpayload->firts            = htonl(nf->nfpayload->firts);
+    nf->nfpayload->first            = htonl(nf->nfpayload->first);
     nf->nfpayload->last             = htonl(nf->nfpayload->last);
     nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
     nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
@@ -315,3 +422,15 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->dstMask          = htons(nf->nfpayload->dstMask);
     nf->nfpayload->pad2             = htons(nf->nfpayload->pad2);
 }
+
+/**
+ * @brief Delete all nodes without exporting 
+ */
+void deleteAllNodes(flowList *fl){
+    while (true){
+        deleteNode(fl, fl->first);
+        if (fl->size == 0)
+            return;
+    }
+}
+

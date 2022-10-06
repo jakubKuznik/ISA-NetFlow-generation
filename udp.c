@@ -8,38 +8,22 @@
 
 
 // function is inspirated from:  (c) Petr Matousek, 2016
-bool sendUdpFlow(struct set settings, struct netFlow * nf, struct sockaddr_in *server){
-    int msg_size, i;
-    struct sockaddr_in from; // address structures of the server and the client
-    socklen_t len, fromlen;        
-    char buffer[BUFFER];            
-
-    len     = sizeof(server);
-    fromlen = sizeof(from);
+bool sendUdpFlow(struct netFlow * nf, struct sockaddr_in *server){
+    int i;
 
     int clientSock = startConnection(*server);
 
 
     char message[NF_HEADER_SIZE + NF_PAYLOA_SIZE] = "";
-    char * pt = &message; // pointer to first element of array 
+    char * pt = &message[0]; // pointer to first element of array 
 
 
-    printf(".... %d %d %d %d %d %d %d %d %d ... ",nf->nfheader->version, nf->nfheader->count, nf->nfheader->sysUpTime, nf->nfheader->unixSecs, nf->nfheader->unixNSecs, nf->nfheader->flowSequence, nf->nfheader->engineType, nf->nfheader->engineId, nf->nfheader->samplingInterval);
     htonsFlow(nf);
-    printf(".... %d %d %d %d %d %d %d %d %d ... ",nf->nfheader->version, nf->nfheader->count, nf->nfheader->sysUpTime, nf->nfheader->unixSecs, nf->nfheader->unixNSecs, nf->nfheader->flowSequence, nf->nfheader->engineType, nf->nfheader->engineId, nf->nfheader->samplingInterval);
     //nf->nfheader->count = htons(1);
 
     memcpy(pt, &nf->nfheader->version, NF_HEADER_SIZE);
     pt = pt + NF_HEADER_SIZE;
     memcpy(pt, &nf->nfpayload->srcAddr, NF_PAYLOA_SIZE);
-
-    /*
-    printf("\n......  ");
-    for (int i = 0; i < NF_HEADER_SIZE + NF_PAYLOA_SIZE; i++)
-        printf("%d",message[i]);
-    printf("  ........\n");
-    */
-
 
     i = send(clientSock, &message, NF_HEADER_SIZE + NF_PAYLOA_SIZE, 0);
     if (i == -1)

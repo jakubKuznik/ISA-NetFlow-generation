@@ -47,7 +47,7 @@ packetInfo proccessPacket(pcap_t *pcap){
     const u_char        *frame;             // packet
     struct pcap_pkthdr  pacHeader;          // packet header
     struct ether_header *ethHeader;        // ethernet   
-    packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0,  true};
+    packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  true};
 
     frame = pcap_next(pcap, &pacHeader);
     if (frame == NULL){
@@ -99,7 +99,7 @@ packetInfo proccessPacket(pcap_t *pcap){
  */
 packetInfo icmpPacketInfo(const u_char *frame){
   
-  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, true};
+  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  true};
   struct ip *ip_header = (struct ip*)(frame + ETH_HEAD_SIZE);
 
   pacInfo.protocol = ICMP;
@@ -122,7 +122,7 @@ packetInfo icmpPacketInfo(const u_char *frame){
  * @return packetInfo struct 
  */
 packetInfo tcpPacketInfo(const u_char *frame){
-  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, true};
+  packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  true};
 
   struct ip *ipHeader = (struct ip*)(frame + ETH_HEAD_SIZE);
   struct tcphdr *tcpHeader = (struct tcphdr*)(frame + ETH_HEAD_SIZE + (ipHeader->ip_hl*4));

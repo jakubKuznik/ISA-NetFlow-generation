@@ -63,7 +63,7 @@ struct NFPayload{
   uint16_t output;   // 0
   uint32_t dPkts;    // update after every packet  
   uint32_t dOctents; // update after every packet 
-  uint32_t firts;    
+  uint32_t first;    
   uint32_t last;     // update 
   uint16_t srcPort;  // XXX
   uint16_t dstPort;  // XXX 
@@ -199,28 +199,48 @@ void updateHeader(NFHeader *header, uint32_t totalFlows);
  */
 node *findIfExists(flowList * flowL, struct packetInfo * pacInfo);
 
-
 /**
- * @brief 
+ * @brief Check if some of flows are to old, if yes export and delete them  
  * 
- * @param flowL 
- * @param packetTime 
- * @param timer  
+ * @param flowL list of all flows 
+ * @param packetTime time for checking 
+ * @param timer -a 
+ * @param set all the settings 
+ * @param collector colector ip add 
+ * @param totalFlows each time flow is exported increment this  
  * @return true if ok
  * @return false if error 
  */
-bool appplyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);
+bool applyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
+          struct sockaddr_in *collector, uint32_t *totalFlows);
+
 
 /**
- * @brief 
+ * @brief Check if some of flows are to old, if yes export and delete them  
  * 
- * @param flowL 
- * @param packetTime
- * @param timer  
- * @return true if okay 
+ * @param flowL list of all flows 
+ * @param packetTime time for checking 
+ * @param timer -a 
+ * @param set all the settings 
+ * @param collector colector ip add 
+ * @param totalFlows each time flow is exported increment this  
+ * @return true if ok
  * @return false if error 
  */
-bool appplyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer);
+bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
+             struct sockaddr_in *collector, uint32_t *totalFlows);
+
+/**
+ * @brief delete oldest flow in list
+ * @param flowL list of all flows 
+ * @param collector collector ip 
+ * @param totalFlows number of flows already exported 
+ * @return true if ok 
+ * 
+ */
+bool deleteOldest(flowList *flowL, \
+                struct sockaddr_in *collector, uint32_t *totalFlows);
+
 
 /**
  * @brief Create a new node (flow) from packet and return pointer to it 
@@ -238,3 +258,16 @@ node *createNode(struct packetInfo *pacInfo);
  * @param nf 
  */
 void htonsFlow(netFlow *nf);
+
+/**
+ * @brief Delete node from flowList 
+ * 
+ * @param flowL 
+ * @param node 
+ */
+void deleteNode(flowList *flowL, node *node);
+
+/**
+ * @brief Delete all nodes without exporting 
+ */
+void deleteAllNodes(flowList *fl);

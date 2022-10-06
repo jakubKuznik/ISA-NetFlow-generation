@@ -7,7 +7,7 @@
 #pragma once
 
 #include "flow.h"
-
+#include "netflowGen.h"
 
 /**
  * @brief Init server where flow will be send. sets ip and port 
@@ -17,7 +17,7 @@
 struct sockaddr_in * initServer(struct set settings);
 
 
-bool sendUdpFlow(struct set settings, struct netFlow *nf, struct sockaddr_in *server);
+bool sendUdpFlow(struct netFlow *nf, struct sockaddr_in *server);
 
 /**
  * @brief establish connection with server using  connect() 
