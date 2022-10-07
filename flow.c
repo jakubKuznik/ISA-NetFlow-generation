@@ -43,7 +43,6 @@ int main(int argc, char *argv[]) {
     if (collector == NULL)
         goto error3;
     
-    
 
     node *temp;
 
@@ -58,18 +57,16 @@ int main(int argc, char *argv[]) {
             lastValid = *pacInfo;
 
         // apply active timer -a -> clean flows 
-        /*
         if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows, *pacInfo) == false){
-            printf("ac lulik");
+            printf("active");
             goto error4;
         }
 
         // apply inactive timer -i -> clean flows
         if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows, *pacInfo) == false){
-            printf("in lulik");
+            printf("inactive");
             goto error4;
         }
-        */
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){

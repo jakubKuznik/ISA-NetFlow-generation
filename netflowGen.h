@@ -91,7 +91,7 @@ typedef struct netFlow netFlow;
  * @brief Double linked list with flows;
  */
 struct flowList{
-  int size; 
+  uint32_t size; 
   struct node *first;   
   struct node *last;
   struct node *current;   

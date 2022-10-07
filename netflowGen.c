@@ -91,10 +91,9 @@ NFHeader *createHeader(struct packetInfo packet){
     header->count            = FLOWS_IN_PACKETS;
 
     header->sysUpTime        = packet.timeSec; 
-/*
+    printf("\ncreating header:  %lu  \n ", packet.timeSec);
     header->unixSecs         = packet.timeSec;
     header->unixNSecs        = packet.timeNano;
-*/  
     header->flowSequence     = 0;
     header->engineType       = UNKNOWN;
     header->engineId         = UNKNOWN;
@@ -201,7 +200,6 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
         if ((packetTimeSec - node->data->nfpayload->first) > timer){
             *totalFlows = *totalFlows + 1;
             updateHeader(node->data->nfheader, *totalFlows, packet);
-            printf("pipik2");
             if(sendUdpFlow(node->data, collector) == false){
                 deleteAllNodes(flowL);
                 return false;
@@ -402,9 +400,9 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
 void htonsFlow(netFlow *nf){
     nf->nfheader->version           = htons(nf->nfheader->version);
     nf->nfheader->count             = htons(nf->nfheader->count);
-    //nf->nfheader->sysUpTime         = htonl(nf->nfheader->sysUpTime);
-    //nf->nfheader->unixSecs          = htonl(nf->nfheader->unixSecs);
-    //nf->nfheader->unixNSecs         = htonl(nf->nfheader->unixNSecs);
+    nf->nfheader->sysUpTime         = htonl(nf->nfheader->sysUpTime);
+    nf->nfheader->unixSecs          = htonl(nf->nfheader->unixSecs);
+    nf->nfheader->unixNSecs         = htonl(nf->nfheader->unixNSecs);
     nf->nfheader->flowSequence      = htonl(nf->nfheader->flowSequence);
     nf->nfheader->engineType        = htons(nf->nfheader->engineType);
     nf->nfheader->engineId          = htons(nf->nfheader->engineId);
@@ -417,8 +415,8 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->output           = htons(nf->nfpayload->output);
     nf->nfpayload->dPkts            = htonl(nf->nfpayload->dPkts);
     nf->nfpayload->dOctents         = htonl(nf->nfpayload->dOctents);
-    //nf->nfpayload->first            = htonl(nf->nfpayload->first);
-    //nf->nfpayload->last             = htonl(nf->nfpayload->last);
+    nf->nfpayload->first            = htonl(nf->nfpayload->first);
+    nf->nfpayload->last             = htonl(nf->nfpayload->last);
     nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
     nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
     nf->nfpayload->pad1             = htons(nf->nfpayload->pad1);
