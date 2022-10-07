@@ -29,12 +29,11 @@
 #include "args.h"
 #include "flow.h"
 #include "netflowGen.h"
-#include "pTime.h"
 #include "udp.h"
 
 /* Default program settings */
 #define DEFAULT_PORT 2055
-#define DEFAULT_IP 1270001
+#define DEFAULT_IP 16777343 // 127.0.0.1 
 #define DEFAULT_TIMER 60
 #define DEFAULT_INTERVAL 10
 #define DEFAULT_CACHE 1024
@@ -64,10 +63,6 @@ struct set{
 };
 
 typedef struct set set;
-
-
-//TODO delete 
-void debugStruct();
 
 /**
  * @brief set default program settings in global var. settings 

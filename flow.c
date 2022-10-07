@@ -17,10 +17,9 @@ set settings;
 int main(int argc, char *argv[]) {
 
     // flow counter every time flow is send ++
-    int i = 0;
+    uint32_t i = 0;
     uint32_t *totalFlows = &i;
 
-    debugStruct();
     // set program settings 
     settings = parseArgs(argc, argv);
     // buffer that is used in pcap struct  
@@ -43,34 +42,46 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in * collector = initServer(settings);
     if (collector == NULL)
         goto error3;
+    
+    
 
     node *temp;
+
+    packetInfo lastValid;
     while(true){
         // read packet 
         *pacInfo = proccessPacket(pcap);
-        if (pacInfo->ok == false)
+        if (pacInfo->ok == false){
             break;
+        }
+        if(pacInfo != NULL)
+            lastValid = *pacInfo;
 
         // apply active timer -a -> clean flows 
-        if (applyActiveTimer(flowL, pacInfo->pacTime, settings.timerActive, collector, totalFlows) == false)
+        /*
+        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows, *pacInfo) == false){
+            printf("ac lulik");
             goto error4;
+        }
 
         // apply inactive timer -i -> clean flows
-        if (applyInactiveTimer(flowL, pacInfo->pacTime, settings.interval, collector, totalFlows) == false)
+        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows, *pacInfo) == false){
+            printf("in lulik");
             goto error4;
-
+        }
+        */
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
             updatePayload(temp->data->nfpayload, *pacInfo);
-            continue;;
+            continue;
         }
 
         // if (todo check tcp fin flag)        
 
         // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize)
-            deleteOldest(flowL, collector, totalFlows);
+            deleteOldest(flowL, collector, totalFlows, lastValid);
 
 
         if (createFlow(flowL, pacInfo) == false)
@@ -81,13 +92,12 @@ int main(int argc, char *argv[]) {
 
     //export all 
     while (flowL->first != NULL){
-        deleteOldest(flowL, collector, totalFlows);
+        deleteOldest(flowL, collector, totalFlows, lastValid);
         printf("\nwuiii %d\n",i);
     }
 
     free(pacInfo);
     freeInitFlowList(flowL);
-    debugStruct();
     
     pcap_close(pcap);
     return 0;
@@ -120,10 +130,6 @@ error4:
 
 }
 
-
-
-
-
 /**
  * @brief set default program settings in global var. settings 
  * -f input file    [DEFAULT NULL (STDIN)] {inputFile}
@@ -141,17 +147,5 @@ set defaultSettings(){
     setNew.interval       = DEFAULT_INTERVAL;
     setNew.cacheSize      = DEFAULT_CACHE;
     return setNew;
-}
-
-//TODO delete 
-void debugStruct(){
-    fprintf(stderr, ".....file....... %p \n",settings.inputFile);
-    fprintf(stderr, ".....cIp........ %u \n",settings.collectorIp);
-    fprintf(stderr, ".....cPor....... %u \n",settings.collectorPort);
-    fprintf(stderr, ".....interval... %u \n",settings.interval);
-    fprintf(stderr, ".....timer...... %u \n",settings.timerActive);
-    fprintf(stderr, ".....cache...... %u \n",settings.cacheSize);
-
-
 }
 

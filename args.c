@@ -102,9 +102,6 @@ error4:
  */
 bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
 
-
-    printf("%s, %d %d",in, *colIp, *colPort);
-    printf("\n%ld\n",strlen(in));
     
     char *tokenIp = strtok(in, ":");
     char *tokenPort = strtok(NULL, ":");
@@ -119,7 +116,6 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
         if (lh == NULL) // non valid hostname 
             return false;
         
-        // TODO there can be multiple addresses behind hostname
 
         memcpy(&(*colIp), lh->h_addr, lh->h_length);
     }

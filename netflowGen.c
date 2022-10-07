@@ -82,16 +82,19 @@ version count  SysUptime  unix_secs  unix_nsecs  flow_sequence
  * @return NFHeader* 
  * @return NULL if malloc error 
  */
-NFHeader *createHeader(){
+NFHeader *createHeader(struct packetInfo packet){
     NFHeader *header = malloc(sizeof(NFHeader));
     if (header == NULL)
         return NULL;
     
     header->version          = NF_VERSION;
     header->count            = FLOWS_IN_PACKETS;
-    header->sysUpTime        = getBootTime();
-    header->unixSecs         = getUTCinSec();
-    header->unixNSecs        = getUTCinNsec();
+
+    header->sysUpTime        = packet.timeSec; 
+/*
+    header->unixSecs         = packet.timeSec;
+    header->unixNSecs        = packet.timeNano;
+*/  
     header->flowSequence     = 0;
     header->engineType       = UNKNOWN;
     header->engineId         = UNKNOWN;
@@ -104,10 +107,15 @@ NFHeader *createHeader(){
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t totalFlows){
-    header->sysUpTime        = getBootTime();
-    header->unixSecs         = getUTCinSec();
-    header->unixNSecs        = getUTCinNsec();
+void updateHeader(NFHeader *header, uint32_t totalFlows, struct packetInfo packet){
+    printf(" %lu ",packet.timeSec);
+    header->sysUpTime        = packet.timeSec; 
+ /*
+ 
+    header->unixSecs         = packet.timeSec; 
+    header->unixNSecs        = packet.timeNano; 
+*/
+ 
     header->flowSequence     = totalFlows;
 }
 
@@ -143,8 +151,8 @@ NFPayload *createPayload(struct packetInfo packet){
     payload->output   = UNKNOWN;
     payload->dPkts    = 1; 
     payload->dOctents = packet.packetSize; // packet size without eth header  
-    payload->first    = packet.pacTime;    
-    payload->last     = packet.pacTime;    // has to update every packet 
+    payload->first    = packet.timeSec;    
+    payload->last     = packet.timeSec;    // has to update every packet 
     payload->srcPort  = packet.srcPort;
     payload->dstPort  = packet.dstPort;
     payload->pad1     = 0;
@@ -169,7 +177,7 @@ NFPayload *createPayload(struct packetInfo packet){
 void updatePayload(NFPayload *payload, struct packetInfo packet){
     payload->dPkts++;
     payload->dOctents = payload->dOctents + packet.packetSize;
-    payload->last = packet.pacTime;
+    payload->last = packet.timeSec;
     payload->tcpFlags = payload->tcpFlags | packet.cumulTcpOr ;
 }
 
@@ -177,7 +185,7 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
  * @brief Check if some of flows are to old, if yes export and delete them  
  * 
  * @param flowL list of all flows 
- * @param packetTime time for checking 
+ * @param packetTimeSec time for checking 
  * @param timer -a 
  * @param set all the settings 
  * @param collector colector ip add 
@@ -185,15 +193,15 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
  * @return true if ok
  * @return false if error 
  */
-bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
-                    struct sockaddr_in *collector, uint32_t *totalFlows){
+bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
+                    struct sockaddr_in *collector, uint32_t *totalFlows, packetInfo packet){
     node* node = flowL->first;
     while (node != NULL){
-        printf("\nFirst: %d Curre: %d timer %d last-first %d \n",node->data->nfpayload->first, packetTime, timer, (packetTime - node->data->nfpayload->first));
         
-        if ((packetTime - node->data->nfpayload->first) > timer){
+        if ((packetTimeSec - node->data->nfpayload->first) > timer){
             *totalFlows = *totalFlows + 1;
-            updateHeader(node->data->nfheader, totalFlows);
+            updateHeader(node->data->nfheader, *totalFlows, packet);
+            printf("pipik2");
             if(sendUdpFlow(node->data, collector) == false){
                 deleteAllNodes(flowL);
                 return false;
@@ -211,7 +219,7 @@ bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
  * @brief Check if some of flows are to old, if yes export and delete them  
  * 
  * @param flowL list of all flows 
- * @param packetTime time for checking 
+ * @param packetTimeSec time for checking 
  * @param timer -a 
  * @param set all the settings 
  * @param collector colector ip add 
@@ -219,15 +227,15 @@ bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
  * @return true if ok
  * @return false if error 
  */
-bool applyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
-                    struct sockaddr_in *collector, uint32_t *totalFlows){
+bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
+                    struct sockaddr_in *collector, uint32_t *totalFlows, packetInfo packet){
     node* node = flowL->first;
     while (node != NULL){
-        printf("\nFirst: %d Curre: %d timer %d last-first %d \n",node->data->nfpayload->first, packetTime, timer, (packetTime - node->data->nfpayload->first));
         
-        if ((packetTime - node->data->nfpayload->last) > timer){
+        if ((packetTimeSec - node->data->nfpayload->last) > timer){
             *totalFlows = *totalFlows + 1;
-            updateHeader(node->data->nfheader, totalFlows);
+            updateHeader(node->data->nfheader, *totalFlows, packet);
+            printf("pipik3");
             if(sendUdpFlow(node->data, collector) == false){
                 deleteAllNodes(flowL);
                 return false;
@@ -247,8 +255,8 @@ bool applyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
  * @return true if ok 
  * 
  */
-bool deleteOldest(flowList *flowL, \
-                struct sockaddr_in *collector, uint32_t *totalFlows){
+bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
+     uint32_t *totalFlows, packetInfo packet ){
     if (flowL->first == NULL)
         return true;
 
@@ -267,7 +275,8 @@ bool deleteOldest(flowList *flowL, \
         node = node->next;
     }
     (*totalFlows)++;
-    updateHeader(oldNode->data->nfheader, totalFlows);
+    updateHeader(oldNode->data->nfheader, *totalFlows, packet);
+    printf("pipik");
     if(sendUdpFlow(oldNode->data, collector) == false){
         deleteAllNodes(flowL);
         return false;
@@ -344,7 +353,7 @@ node *createNode(struct packetInfo *pacInfo){
         return NULL;
     }
 
-    temp->data->nfheader = createHeader(pacInfo);
+    temp->data->nfheader = createHeader(*pacInfo);
     if (temp->data->nfheader == NULL){
         free(temp->data->nfpayload);
         free(temp->data);
@@ -393,9 +402,9 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
 void htonsFlow(netFlow *nf){
     nf->nfheader->version           = htons(nf->nfheader->version);
     nf->nfheader->count             = htons(nf->nfheader->count);
-    nf->nfheader->sysUpTime         = htonl(nf->nfheader->sysUpTime);
-    nf->nfheader->unixSecs          = htonl(nf->nfheader->unixSecs);
-    nf->nfheader->unixNSecs         = htonl(nf->nfheader->unixNSecs);
+    //nf->nfheader->sysUpTime         = htonl(nf->nfheader->sysUpTime);
+    //nf->nfheader->unixSecs          = htonl(nf->nfheader->unixSecs);
+    //nf->nfheader->unixNSecs         = htonl(nf->nfheader->unixNSecs);
     nf->nfheader->flowSequence      = htonl(nf->nfheader->flowSequence);
     nf->nfheader->engineType        = htons(nf->nfheader->engineType);
     nf->nfheader->engineId          = htons(nf->nfheader->engineId);
@@ -408,8 +417,8 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->output           = htons(nf->nfpayload->output);
     nf->nfpayload->dPkts            = htonl(nf->nfpayload->dPkts);
     nf->nfpayload->dOctents         = htonl(nf->nfpayload->dOctents);
-    nf->nfpayload->first            = htonl(nf->nfpayload->first);
-    nf->nfpayload->last             = htonl(nf->nfpayload->last);
+    //nf->nfpayload->first            = htonl(nf->nfpayload->first);
+    //nf->nfpayload->last             = htonl(nf->nfpayload->last);
     nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
     nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
     nf->nfpayload->pad1             = htons(nf->nfpayload->pad1);

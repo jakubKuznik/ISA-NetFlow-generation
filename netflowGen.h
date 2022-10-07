@@ -149,14 +149,6 @@ bool createFlow(flowList *flowL, struct packetInfo *pacInfo);
 void freeInitFlowList(flowList *flowL);
 
 /**
- * @brief Create a flow header
- * 
- * @return NFHeader* 
- * @return NULL if malloc error 
- */
-NFHeader *createHeader();
-
-/**
  * @brief Update flow payload 
  * 
  * @param payload 
@@ -180,14 +172,14 @@ NFPayload *createPayload(struct packetInfo packet);
  * @return NFHeader* 
  * @return NULL if malloc error 
  */
-NFHeader *createHeader();
+NFHeader *createHeader(struct packetInfo packet);
 
 /**
  * @brief Use this function before flow send!
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t totalFlows);
+void updateHeader(NFHeader *header, uint32_t totalFlows, struct packetInfo packet);
 
 /**
  * @brief find if packet is related to some existing flow 
@@ -211,15 +203,15 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo);
  * @return true if ok
  * @return false if error 
  */
-bool applyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
-          struct sockaddr_in *collector, uint32_t *totalFlows);
+bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
+     struct sockaddr_in *collector, uint32_t *totalFlows,struct packetInfo packet);
 
 
 /**
  * @brief Check if some of flows are to old, if yes export and delete them  
  * 
  * @param flowL list of all flows 
- * @param packetTime time for checking 
+ * @param packetTimeSec time for checking 
  * @param timer -a 
  * @param set all the settings 
  * @param collector colector ip add 
@@ -227,8 +219,8 @@ bool applyInactiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
  * @return true if ok
  * @return false if error 
  */
-bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
-             struct sockaddr_in *collector, uint32_t *totalFlows);
+bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
+     struct sockaddr_in *collector, uint32_t *totalFlows, struct packetInfo packet);
 
 /**
  * @brief delete oldest flow in list
@@ -238,8 +230,8 @@ bool applyActiveTimer(flowList *flowL, time_t packetTime, uint32_t timer, \
  * @return true if ok 
  * 
  */
-bool deleteOldest(flowList *flowL, \
-                struct sockaddr_in *collector, uint32_t *totalFlows);
+bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
+     uint32_t *totalFlows, struct packetInfo packet );
 
 
 /**
