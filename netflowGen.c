@@ -91,7 +91,6 @@ NFHeader *createHeader(struct packetInfo packet){
     header->count            = FLOWS_IN_PACKETS;
 
     header->sysUpTime        = packet.timeSec; 
-    printf("\ncreating header:  %lu  \n ", packet.timeSec);
     header->unixSecs         = packet.timeSec;
     header->unixNSecs        = packet.timeNano;
     header->flowSequence     = 0;
@@ -102,12 +101,23 @@ NFHeader *createHeader(struct packetInfo packet){
 }
 
 /**
+ * @brief Update header for existing flow 
+ * 
+ * @param header 
+ */
+void updateHeaderExists(NFHeader *header, struct packetInfo packet){
+    header->sysUpTime        = packet.timeSec; 
+    header->unixSecs         = packet.timeSec; 
+    header->unixNSecs        = packet.timeNano; 
+}
+
+
+/**
  * @brief Use this function before flow send!
  * 
  * @param header 
  */
 void updateHeader(NFHeader *header, uint32_t totalFlows, struct packetInfo packet){
-    printf(" %lu ",packet.timeSec);
     header->sysUpTime        = packet.timeSec; 
  /*
  
@@ -233,7 +243,6 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
         if ((packetTimeSec - node->data->nfpayload->last) > timer){
             *totalFlows = *totalFlows + 1;
             updateHeader(node->data->nfheader, *totalFlows, packet);
-            printf("pipik3");
             if(sendUdpFlow(node->data, collector) == false){
                 deleteAllNodes(flowL);
                 return false;
@@ -274,7 +283,6 @@ bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
     }
     (*totalFlows)++;
     updateHeader(oldNode->data->nfheader, *totalFlows, packet);
-    printf("pipik");
     if(sendUdpFlow(oldNode->data, collector) == false){
         deleteAllNodes(flowL);
         return false;

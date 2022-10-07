@@ -59,8 +59,8 @@ packetInfo proccessPacket(pcap_t *pcap){
 
     // get time and interface from pcap 
     //time_t time = ntohl(pacHeader.ts.tv_sec);
-    printf("\nnormal:  %lu  \n ", pacHeader.ts.tv_sec);
-    printf("\nntohl:  %lu  \n", ntohl(pacHeader.ts.tv_sec));
+    //printf("\nnormal:  %lu  \n ", pacHeader.ts.tv_sec);
+    //printf("\nntohl:  %lu  \n", ntohl(pacHeader.ts.tv_sec));
     time_t frameTime = pacHeader.ts.tv_sec;
     //uint32_t frameTimeNano = (pacHeader.ts.tv_usec) * 1000;
 
@@ -128,7 +128,7 @@ packetInfo tcpPacketInfo(const u_char *frame){
   struct ip *ipHeader = (struct ip*)(frame + ETH_HEAD_SIZE);
   struct tcphdr *tcpHeader = (struct tcphdr*)(frame + ETH_HEAD_SIZE + (ipHeader->ip_hl*4));
 
-  pacInfo.protocol    = UDP;
+  pacInfo.protocol    = TCP;
   pacInfo.tos         = ntohs(ipHeader->ip_tos);
   pacInfo.srcAddr     = ntohl(ipHeader->ip_src.s_addr);
   pacInfo.dstAddr     = ntohl(ipHeader->ip_dst.s_addr);

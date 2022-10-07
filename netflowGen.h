@@ -263,3 +263,11 @@ void deleteNode(flowList *flowL, node *node);
  * @brief Delete all nodes without exporting 
  */
 void deleteAllNodes(flowList *fl);
+
+
+/**
+ * @brief Update header for existing flow 
+ * 
+ * @param header 
+ */
+void updateHeaderExists(NFHeader *header, struct packetInfo packet);

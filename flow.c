@@ -67,24 +67,35 @@ int main(int argc, char *argv[]) {
             printf("inactive");
             goto error4;
         }
-
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
+            flowL->current = temp;
             updatePayload(temp->data->nfpayload, *pacInfo);
+            updateHeaderExists(temp->data->nfheader, *pacInfo);
             continue;
         }
 
-        // if (todo check tcp fin flag)        
+        // if check tcp fin flag)        
+        if (pacInfo->protocol == TCP){
+            // 0000 0000
+            // 0000 0100  // reset 
+            // 0000 0001  // sin 
+            if(((pacInfo->cumulTcpOr & 4) > 0) || ((pacInfo->cumulTcpOr & 1) > 0)){
+                updateHeader(flowL->current->data->nfheader, *totalFlows, *pacInfo);
+                if(sendUdpFlow(flowL->current->data, collector) == false){
+                    deleteAllNodes(flowL);
+                }
+                deleteNode(flowL, flowL->current);
+                continue;
+            }
+        }
 
         // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize)
             deleteOldest(flowL, collector, totalFlows, lastValid);
 
-
         if (createFlow(flowL, pacInfo) == false)
             goto error3;     
-
-
     }
 
     //export all 
