@@ -11,7 +11,7 @@
 #include "flow.h"
 
 // GLOBAL settings variable
-set settings;
+struct set settings;
 
 
 int main(int argc, char *argv[]) {
@@ -146,8 +146,8 @@ error4:
  * -i interval      [DEFAULT 10s] {interval}
  * -m flow cache    [DEFAULT 1024] {cacheSize}
  */
-set defaultSettings(){
-    set setNew;
+struct set defaultSettings(){
+    struct set setNew;
     setNew.inputFile      = NULL;
     setNew.collectorIp    = DEFAULT_IP;
     setNew.collectorPort  = DEFAULT_PORT;

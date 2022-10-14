@@ -14,7 +14,7 @@
  * @param settings struct with all the program settings  
  */
 struct set parseArgs(int argc, char *argv[]) {
-    set setNew;
+    struct set setNew;
     setNew = defaultSettings();
 
     fprintf(stderr, "%d %s", argc, argv[0]);
@@ -124,7 +124,7 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
     if(parseNumUINT16(tokenPort, colPort) == false)
         return false;
 
-    colPort = htons(colPort);
+    *colPort = htons(*colPort);
     
     return true;
 }

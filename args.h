@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include "flow.h"
 #include "pcapFile.h"
+#include "struct.h"
+#include "flow.h"
 
 /**
  * @brief Parse arguments and set settings variable 

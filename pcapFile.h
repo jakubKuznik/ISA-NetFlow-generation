@@ -4,9 +4,20 @@
 // Compiled:    gcc 9.9.3.0
 // header file for pcapFile.c 
 
-#pragma once
+#ifndef PCAP_H
+#define PCAP_H
 
-#include "flow.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <arpa/inet.h>
+#include <netinet/if_ether.h>  
+#include <netinet/ip_icmp.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <pcap/pcap.h>
+
+#include "struct.h"
 
 #define ICMP 1 // wiki ip paket sekce data 
 #define TCP 6
@@ -15,28 +26,6 @@
 
 #define ETH_HEAD_SIZE 14
 
-
-/**
- * @brief Basic info about packet, that define netflow 
- */
-struct packetInfo
-{
-  uint32_t srcAddr;        // XXX 
-  uint32_t dstAddr;        // XXX
-  uint16_t srcPort;        // XXX
-  uint16_t dstPort;        // XXX
-  uint8_t protocol;        // TCP UDP ICMP 
-  uint8_t tos;             // XXX
-  //char srcMask;          // XXX
-  //char dstMask;          // XXX
-  unsigned int layer3Size; // from IHL 
-  uint16_t packetSize;     // entire packet size without et_header 
-  uint32_t timeSec;
-  uint32_t timeNano;
-  uint8_t cumulTcpOr;      // cumulative tcp flags or 
-  bool ok;            // if ok set to true 
-};
-typedef struct packetInfo packetInfo;
 
 /**
  * @brief If file is not NULL, then close it. 
@@ -102,5 +91,4 @@ packetInfo tcpPacketInfo(const u_char *frame);
 packetInfo udpPacketInfo(const u_char *frame);
 
 
-// TODO smazat 
-void debugPktStruct(packetInfo pktInfo);
+#endif

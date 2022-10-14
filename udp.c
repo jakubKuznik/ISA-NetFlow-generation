@@ -8,7 +8,7 @@
 
 
 // function is inspirated from:  (c) Petr Matousek, 2016
-bool sendUdpFlow(struct netFlow * nf, struct sockaddr_in *server){
+bool sendUdpFlow(netFlow * nf, struct sockaddr_in *server){
     int i;
 
     int clientSock = startConnection(*server);

@@ -4,7 +4,10 @@
 // Compiled:    gcc 9.9.3.0
 // Fileprovide functions, for sending udp packets  
 
-#pragma once
+#ifndef UDP_H
+#define UDP_H
+
+
 
 #include "flow.h"
 #include "netflowGen.h"
@@ -27,3 +30,5 @@ bool sendUdpFlow(struct netFlow *nf, struct sockaddr_in *server);
  * @retunr -1 if error 
  */
 int startConnection(struct sockaddr_in server);
+
+#endif
