@@ -19,7 +19,6 @@ void deleteNode(flowList *flowL, node *node){
     if (node == NULL)
         return;
 
-
     if (flowL->first == node){
         flowL->first = node->next;
     }
@@ -33,6 +32,7 @@ void deleteNode(flowList *flowL, node *node){
     free(node->data->nfheader);
     free(node->data->nfpayload);
     free(node->data);
+    free(node);
     flowL->size--;
 }
 
@@ -100,31 +100,13 @@ NFHeader *createHeader(struct packetInfo packet){
     return header;
 }
 
-/**
- * @brief Update header for existing flow 
- * 
- * @param header 
- */
-void updateHeaderExists(NFHeader *header, struct packetInfo packet){
-    header->sysUpTime        = packet.timeSec; 
-    header->unixSecs         = packet.timeSec; 
-    header->unixNSecs        = packet.timeNano; 
-}
-
 
 /**
  * @brief Use this function before flow send!
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t totalFlows, struct packetInfo packet){
-    header->sysUpTime        = packet.timeSec; 
- /*
- 
-    header->unixSecs         = packet.timeSec; 
-    header->unixNSecs        = packet.timeNano; 
-*/
- 
+void updateHeader(NFHeader *header, uint32_t totalFlows){
     header->flowSequence     = totalFlows;
 }
 
@@ -203,19 +185,22 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
  * @return false if error 
  */
 bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
-                    struct sockaddr_in *collector, uint32_t *totalFlows, packetInfo packet){
+                    struct sockaddr_in *collector, uint32_t *totalFlows){
     node* node = flowL->first;
+    struct node* temp = NULL;
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->first) > timer){
             *totalFlows = *totalFlows + 1;
-            updateHeader(node->data->nfheader, *totalFlows, packet);
+            updateHeader(node->data->nfheader, *totalFlows);
             if(sendUdpFlow(node->data, collector) == false){
                 deleteAllNodes(flowL);
                 return false;
-
             }
+            temp = node->next;
             deleteNode(flowL, node);
+            node = temp;
+            continue;
         }
         node = node->next;
     }
@@ -236,18 +221,22 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
  * @return false if error 
  */
 bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
-                    struct sockaddr_in *collector, uint32_t *totalFlows, packetInfo packet){
+                    struct sockaddr_in *collector, uint32_t *totalFlows){
     node* node = flowL->first;
+    struct node* temp = NULL;
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->last) > timer){
             *totalFlows = *totalFlows + 1;
-            updateHeader(node->data->nfheader, *totalFlows, packet);
+            updateHeader(node->data->nfheader, *totalFlows);
             if(sendUdpFlow(node->data, collector) == false){
                 deleteAllNodes(flowL);
                 return false;
             }
+            temp = node->next;
             deleteNode(flowL, node);
+            node = temp;
+            continue;
         }
         node = node->next;
     }
@@ -263,7 +252,7 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
  * 
  */
 bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
-     uint32_t *totalFlows, packetInfo packet ){
+     uint32_t *totalFlows){
     if (flowL->first == NULL)
         return true;
 
@@ -282,7 +271,7 @@ bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
         node = node->next;
     }
     (*totalFlows)++;
-    updateHeader(oldNode->data->nfheader, *totalFlows, packet);
+    updateHeader(oldNode->data->nfheader, *totalFlows);
     if(sendUdpFlow(oldNode->data, collector) == false){
         deleteAllNodes(flowL);
         return false;
@@ -307,7 +296,6 @@ bool createFlow(flowList *flowL, struct packetInfo *pacInfo){
     node *newNode = createNode(pacInfo);
     if (newNode == NULL)
         return false;
-
 
     // if empty 
     if (flowL->first == NULL){
@@ -381,7 +369,6 @@ node *createNode(struct packetInfo *pacInfo){
  */
 node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
     node * temp = flowL->first;
-    //printf("%d ", temp->data->nfpayload);
     if (temp == NULL)
         return NULL;
     while (temp != NULL){

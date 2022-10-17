@@ -17,7 +17,6 @@ struct set parseArgs(int argc, char *argv[]) {
     struct set setNew;
     setNew = defaultSettings();
 
-    fprintf(stderr, "%d %s", argc, argv[0]);
     for (int i=1; i < argc; i++){
         // help message 
         if ((strcmp(argv[i], "-h") == 0 ) || (strcmp(argv[i], "--help") == 0)) {

@@ -13,6 +13,7 @@
 
 /**
  * @brief Basic info about packet, that define netflow 
+ * packets with the same XXX are in the same flow 
  */
 struct packetInfo
 {
@@ -22,8 +23,6 @@ struct packetInfo
   uint16_t dstPort;        // XXX
   uint8_t protocol;        // TCP UDP ICMP 
   uint8_t tos;             // XXX
-  //char srcMask;          // XXX
-  //char dstMask;          // XXX
   unsigned int layer3Size; // from IHL 
   uint16_t packetSize;     // entire packet size without et_header 
   uint32_t timeSec;
@@ -48,7 +47,7 @@ struct NFHeader{
   uint32_t sysUpTime;      // this has to be updated 
   uint32_t unixSecs;       // this has to be updated 
   uint32_t unixNSecs;      // this has to be updated 
-  uint32_t flowSequence; // this has to be updated 
+  uint32_t flowSequence;   // this has to be updated 
   uint8_t engineType;
   uint8_t engineId;
   uint16_t samplingInterval;
@@ -140,7 +139,6 @@ struct flowArrayInfo{
   int current; // curent 
 };
 typedef struct flowArrayInfo flowArrayInfo;
-
 
 /**
  * @brief Settings struct for the program 

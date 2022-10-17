@@ -7,6 +7,8 @@
 #ifndef FLOW_H 
 #define FLOW_H
 
+#pragma once
+
 // normal libraries 
 #include <stdio.h>
 #include <stdlib.h>

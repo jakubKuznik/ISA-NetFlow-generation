@@ -58,14 +58,7 @@ packetInfo proccessPacket(pcap_t *pcap){
     
 
     // get time and interface from pcap 
-    //time_t time = ntohl(pacHeader.ts.tv_sec);
-    //printf("\nnormal:  %lu  \n ", pacHeader.ts.tv_sec);
-    //printf("\nntohl:  %lu  \n", ntohl(pacHeader.ts.tv_sec));
     time_t frameTime = pacHeader.ts.tv_sec;
-    //uint32_t frameTimeNano = (pacHeader.ts.tv_usec) * 1000;
-
-    //uint32_t frameTime = pacHeader.ts.tv_sec;
-    //uint32_t frameTimeNano = pacHeader.ts.tv_usec* 1000;
 
     // ip + icmp
     if (ntohs(ethHeader->ether_type) == ETHERTYPE_IP){

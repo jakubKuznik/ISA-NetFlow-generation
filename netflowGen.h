@@ -75,7 +75,7 @@ NFHeader *createHeader(struct packetInfo packet);
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t totalFlows, struct packetInfo packet);
+void updateHeader(NFHeader *header, uint32_t totalFlows);
 
 /**
  * @brief find if packet is related to some existing flow 
@@ -100,7 +100,7 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo);
  * @return false if error 
  */
 bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
-     struct sockaddr_in *collector, uint32_t *totalFlows,struct packetInfo packet);
+     struct sockaddr_in *collector, uint32_t *totalFlows);
 
 
 /**
@@ -116,7 +116,7 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
  * @return false if error 
  */
 bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
-     struct sockaddr_in *collector, uint32_t *totalFlows, struct packetInfo packet);
+     struct sockaddr_in *collector, uint32_t *totalFlows);
 
 /**
  * @brief delete oldest flow in list
@@ -127,7 +127,7 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
  * 
  */
 bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
-     uint32_t *totalFlows, struct packetInfo packet );
+     uint32_t *totalFlows);
 
 
 /**
@@ -160,13 +160,6 @@ void deleteNode(flowList *flowL, node *node);
  */
 void deleteAllNodes(flowList *fl);
 
-
-/**
- * @brief Update header for existing flow 
- * 
- * @param header 
- */
-void updateHeaderExists(NFHeader *header, struct packetInfo packet);
 
 
 #endif

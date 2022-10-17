@@ -33,7 +33,6 @@
  */
 void closeFile(FILE *f);
 
-
 /**
  * @brief Open pcap_file using pcap_fopen_offline and return it 
  * 
@@ -63,8 +62,6 @@ packetInfo proccessPacket(pcap_t *pcap);
  * @return UDP 
  */
 int protocolType(const u_char *frame);
-
-
 
 /**
  * @brief Find information about ICMP packet and write it to packetInfo struct 

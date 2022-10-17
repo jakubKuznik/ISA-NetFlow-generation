@@ -42,28 +42,24 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in * collector = initServer(settings);
     if (collector == NULL)
         goto error3;
-    
 
     node *temp;
 
-    packetInfo lastValid;
     while(true){
         // read packet 
         *pacInfo = proccessPacket(pcap);
         if (pacInfo->ok == false){
             break;
         }
-        if(pacInfo != NULL)
-            lastValid = *pacInfo;
 
         // apply active timer -a -> clean flows 
-        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows, *pacInfo) == false){
+        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows) == false){
             printf("active");
             goto error4;
         }
 
         // apply inactive timer -i -> clean flows
-        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows, *pacInfo) == false){
+        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows) == false){
             printf("inactive");
             goto error4;
         }
@@ -71,7 +67,6 @@ int main(int argc, char *argv[]) {
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
             flowL->current = temp;
             updatePayload(temp->data->nfpayload, *pacInfo);
-            updateHeaderExists(temp->data->nfheader, *pacInfo);
             continue;
         }
 
@@ -81,7 +76,7 @@ int main(int argc, char *argv[]) {
             // 0000 0100  // reset 
             // 0000 0001  // sin 
             if(((pacInfo->cumulTcpOr & 4) > 0) || ((pacInfo->cumulTcpOr & 1) > 0)){
-                updateHeader(flowL->current->data->nfheader, *totalFlows, *pacInfo);
+                updateHeader(flowL->current->data->nfheader, *totalFlows);
                 if(sendUdpFlow(flowL->current->data, collector) == false){
                     deleteAllNodes(flowL);
                 }
@@ -92,7 +87,7 @@ int main(int argc, char *argv[]) {
 
         // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize)
-            deleteOldest(flowL, collector, totalFlows, lastValid);
+            deleteOldest(flowL, collector, totalFlows);
 
         if (createFlow(flowL, pacInfo) == false)
             goto error3;     
@@ -100,12 +95,12 @@ int main(int argc, char *argv[]) {
 
     //export all 
     while (flowL->first != NULL){
-        deleteOldest(flowL, collector, totalFlows, lastValid);
-        printf("\nwuiii %d\n",i);
+        deleteOldest(flowL, collector, totalFlows);
     }
 
     free(pacInfo);
     freeInitFlowList(flowL);
+    free(collector);
     
     pcap_close(pcap);
     return 0;
@@ -132,6 +127,7 @@ error4:
     free(pacInfo);
     freeInitFlowList(flowL);
     pcap_close(pcap);
+    free(collector);
     fprintf(stderr, "ERROR\n");
     return 2;
 
