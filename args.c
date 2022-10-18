@@ -164,7 +164,6 @@ bool parseNumUINT16(char *s, uint16_t *out){
 bool parseNumUINT32(char *s, uint32_t *out){
     char *temp;
     long number; 
-    
 
     number = strtol(s, &temp, 10);
     if (*s != '\0' && *temp == '\0'){ // valid strtol

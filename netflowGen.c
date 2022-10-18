@@ -20,7 +20,6 @@ void deleteNode(flowList *flowL, node *node){
         return;
 
     struct node *temp = NULL;
-    struct node *temp2 = NULL;
 
     if (flowL->first == node){
         if (node->next != NULL){
@@ -49,13 +48,10 @@ void deleteNode(flowList *flowL, node *node){
     flowL->size--;
 }
 
-
 /**
  * @brief Free initFlowList struct 
  */
 void freeInitFlowList(flowList *flowL){
-
-
     if (flowL->first != NULL){
         free(flowL->first);
     }
@@ -72,7 +68,6 @@ flowList * initFlowList(){
     flowList *flowL = malloc(sizeof(flowList));
     if (flowL == NULL)
         return NULL;
-
 
     flowL->current = NULL;
     flowL->first   = NULL;
@@ -113,7 +108,6 @@ NFHeader *createHeader(struct packetInfo packet){
     return header;
 }
 
-
 /**
  * @brief Use this function before flow send!
  * 
@@ -122,7 +116,6 @@ NFHeader *createHeader(struct packetInfo packet){
 void updateHeader(NFHeader *header, uint32_t totalFlows){
     header->flowSequence     = totalFlows;
 }
-
 
 /******************  RECORD FORMAT ************************
   0-3       4-7      8-11    12-13   14-15   16-19    20-23    
@@ -216,7 +209,6 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
     return true;
 }
 
-
 /**
  * @brief Check if some of flows are to old, if yes export and delete them  
  * 
@@ -281,7 +273,6 @@ bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
      uint32_t *totalFlows){
     if (flowL->first == NULL)
         return true;
-
 
     node *oldNode   = flowL->first;
     node *node      = flowL->first; 
@@ -378,7 +369,6 @@ node *createNode(struct packetInfo *pacInfo){
     return temp;
 }
 
-
 /**
  * @brief find if packet is related to some existing flow 
  * 
@@ -455,4 +445,3 @@ void deleteAllNodes(flowList *fl){
             return;
     }
 }
-

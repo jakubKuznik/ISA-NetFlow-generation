@@ -45,10 +45,10 @@ int main(int argc, char *argv[]) {
 
     node *temp;
 
-    bool exitst = false; //indicate if flow already exist 
     while(true){
-        exitst = false;
+        // if flow already exist story it to temp
         temp =  NULL;
+        
         // read packet 
         *pacInfo = proccessPacket(pcap);
         if (pacInfo->ok == false){
@@ -56,39 +56,34 @@ int main(int argc, char *argv[]) {
         }
         
         // apply active timer -a -> clean flows 
-        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows) == false){
-            printf("active");
+        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows) == false)
             goto error4;
-        }
 
         // apply inactive timer -i -> clean flows
-        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows) == false){
-            printf("inactive");
+        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows) == false)
             goto error4;
-        }
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
             flowL->current = temp;
             updatePayload(temp->data->nfpayload, *pacInfo);
-            exitst = true;
         }
 
         // if check tcp fin flag)        
         if (pacInfo->protocol == TCP){
-            if ((temp = findIfExists(flowL, pacInfo)) != NULL){
+            if (temp != NULL){
                 // 0000 0000
                 // 0000 0100  // reset 
                 // 0000 0001  // sin 
-                 if (((temp->data->nfpayload->tcpFlags & 4 ) > 0) || ((temp->data->nfpayload->tcpFlags & 1) > 0)){
-                    
+                 if (((temp->data->nfpayload->tcpFlags & 4 ) > 0) \
+                   || ((temp->data->nfpayload->tcpFlags & 1) > 0)){
                     deleteAndSend(flowL, collector, totalFlows, temp);
-                    continue;
                 }
             }
         }
 
-        if (exitst == true)
+        // if flows already exists  
+        if (temp != NULL)
             continue;
 
         // delete the oldest one if cache is full  
