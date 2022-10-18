@@ -48,12 +48,13 @@ int main(int argc, char *argv[]) {
     while(true){
         // if flow already exist story it to temp
         temp =  NULL;
-        
+
         // read packet 
         *pacInfo = proccessPacket(pcap);
-        if (pacInfo->ok == false){
+        if (pacInfo->ok == false)
             break;
-        }
+        if (pacInfo->protocol == UNKNOWN_PROTOCOL)
+            continue;
         
         // apply active timer -a -> clean flows 
         if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows) == false)

@@ -9,6 +9,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define __FAVOR_BSD
+
 #pragma once
 
 /**

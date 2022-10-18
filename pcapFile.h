@@ -22,7 +22,7 @@
 #define ICMP 1 // wiki ip paket sekce data 
 #define TCP 6
 #define UDP 17 
-#define UNKNOWN_PROTOCOL -1
+#define UNKNOWN_PROTOCOL 0
 
 #define ETH_HEAD_SIZE 14
 
