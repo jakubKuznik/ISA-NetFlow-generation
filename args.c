@@ -100,15 +100,25 @@ error4:
  * @return false if not succesfull.
  */
 bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
-
-    
     char *tokenIp = NULL;
     char *tokenPort = NULL; 
-    
+
     if ((tokenIp = strtok(in, ":")) == NULL)
         return false;
-    if ((tokenPort = strtok(NULL, ":")) == NULL)
-        return false;
+    // if port is not specified then use 2055
+    if ((tokenPort = strtok(NULL, ":")) == NULL){
+        struct hostent *lh = NULL;
+        *colIp = inet_addr(in);
+        if(*colIp == (in_addr_t)(-1)){ // if not succ try parse hostname 
+            lh = gethostbyname(tokenIp);
+            if (lh == NULL) // non valid hostname 
+                return false;
+
+            memcpy(&(*colIp), lh->h_addr, lh->h_length);
+        }
+        *colPort = htons((uint16_t)DEFAULT_PORT);
+        return true;
+    }
 
     // error multiple ':'
     if(strtok(NULL, ":") != NULL)
@@ -119,8 +129,6 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
         struct hostent *lh = gethostbyname(tokenIp);
         if (lh == NULL) // non valid hostname 
             return false;
-        
-
         memcpy(&(*colIp), lh->h_addr, lh->h_length);
     }
 

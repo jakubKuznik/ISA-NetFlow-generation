@@ -73,6 +73,7 @@ packetInfo proccessPacket(pcap_t *pcap){
           pacInfo = udpPacketInfo(frame);
           break;
         default:
+          pacInfo.protocol = UNKNOWN_PROTOCOL;
           break;
       }
     }

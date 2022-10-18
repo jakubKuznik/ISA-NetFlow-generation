@@ -197,10 +197,8 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->first) > timer){
-            if (node->next != NULL)
-                temp = node->next;
+            temp = node->next;
             deleteAndSend(flowL, collector, totalFlows, node);
-
             node = temp;
             continue;
         }
@@ -228,10 +226,8 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->last) > timer){
-            if (node->next != NULL)
-                temp = node->next;
+            temp = node->next;
             deleteAndSend(flowL, collector, totalFlows, node);
-
             node = temp;
             continue;
         }
