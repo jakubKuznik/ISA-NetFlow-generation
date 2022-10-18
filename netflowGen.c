@@ -19,15 +19,28 @@ void deleteNode(flowList *flowL, node *node){
     if (node == NULL)
         return;
 
+    struct node *temp = NULL;
+    struct node *temp2 = NULL;
+
     if (flowL->first == node){
-        flowL->first = node->next;
+        if (node->next != NULL){
+            temp = node->next;
+            flowL->first = temp;
+            flowL->first->prev = NULL;
+        }
+        else{
+            flowL->first = NULL;
+            flowL->last = NULL;
+        }
     }
     else if (flowL->last == node){
-        flowL->last = node->prev;
+        temp = node->prev;
+        temp->next = NULL;
+        flowL->last = temp;
     }
     else{
-        node->prev->next = node->next;
         node->next->prev = node->prev;
+        node->prev->next = node->next;
     }
     free(node->data->nfheader);
     free(node->data->nfpayload);
@@ -169,7 +182,7 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
     payload->dPkts++;
     payload->dOctents = payload->dOctents + packet.packetSize;
     payload->last = packet.timeSec;
-    payload->tcpFlags = payload->tcpFlags | packet.cumulTcpOr ;
+    payload->tcpFlags |= packet.cumulTcpOr;
 }
 
 /**
@@ -191,14 +204,10 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->first) > timer){
-            *totalFlows = *totalFlows + 1;
-            updateHeader(node->data->nfheader, *totalFlows);
-            if(sendUdpFlow(node->data, collector) == false){
-                deleteAllNodes(flowL);
-                return false;
-            }
-            temp = node->next;
-            deleteNode(flowL, node);
+            if (node->next != NULL)
+                temp = node->next;
+            deleteAndSend(flowL, collector, totalFlows, node);
+
             node = temp;
             continue;
         }
@@ -227,20 +236,37 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->last) > timer){
-            *totalFlows = *totalFlows + 1;
-            updateHeader(node->data->nfheader, *totalFlows);
-            if(sendUdpFlow(node->data, collector) == false){
-                deleteAllNodes(flowL);
-                return false;
-            }
-            temp = node->next;
-            deleteNode(flowL, node);
+            if (node->next != NULL)
+                temp = node->next;
+            deleteAndSend(flowL, collector, totalFlows, node);
+
             node = temp;
             continue;
         }
         node = node->next;
     }
     return true;
+}
+
+/**
+ * @brief Delete and send the node  
+ * 
+ */
+bool deleteAndSend(flowList *flowL, struct sockaddr_in *collector, \
+     uint32_t *totalFlows, node *delete){
+    if (flowL->first == NULL)
+        return true;
+
+
+    (*totalFlows)++;
+    updateHeader(delete->data->nfheader, *totalFlows);
+    if(sendUdpFlow(delete->data, collector) == false){
+        deleteAllNodes(flowL);
+        return false;
+    }
+    deleteNode(flowL, delete);
+    
+    return true; 
 }
 
 /**
@@ -270,13 +296,7 @@ bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
 
         node = node->next;
     }
-    (*totalFlows)++;
-    updateHeader(oldNode->data->nfheader, *totalFlows);
-    if(sendUdpFlow(oldNode->data, collector) == false){
-        deleteAllNodes(flowL);
-        return false;
-    }
-    deleteNode(flowL, oldNode);
+    deleteAndSend(flowL, collector, totalFlows, oldNode);
     
     return true; 
 }
@@ -372,16 +392,16 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo){
     if (temp == NULL)
         return NULL;
     while (temp != NULL){
+        if (temp->data == NULL)
+            break;
         if (pacInfo->srcAddr  == temp->data->nfpayload->srcAddr  
         &&  pacInfo->dstAddr  == temp->data->nfpayload->dstAddr \
         &&  pacInfo->srcPort  == temp->data->nfpayload->srcPort \
         &&  pacInfo->dstPort  == temp->data->nfpayload->dstPort \
-        &&  pacInfo->protocol == temp->data->nfpayload->prot )
+        &&  pacInfo->protocol == temp->data->nfpayload->prot ){
             return temp;
-        if (temp->next == NULL)
-            break;
-        else
-            temp = temp->next;
+        }
+        temp = temp->next;
     }
 
     return NULL;

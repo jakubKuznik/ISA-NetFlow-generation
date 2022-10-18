@@ -45,13 +45,16 @@ int main(int argc, char *argv[]) {
 
     node *temp;
 
+    bool exitst = false; //indicate if flow already exist 
     while(true){
+        exitst = false;
+        temp =  NULL;
         // read packet 
         *pacInfo = proccessPacket(pcap);
         if (pacInfo->ok == false){
             break;
         }
-
+        
         // apply active timer -a -> clean flows 
         if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows) == false){
             printf("active");
@@ -63,27 +66,30 @@ int main(int argc, char *argv[]) {
             printf("inactive");
             goto error4;
         }
+
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
             flowL->current = temp;
             updatePayload(temp->data->nfpayload, *pacInfo);
-            continue;
+            exitst = true;
         }
 
         // if check tcp fin flag)        
         if (pacInfo->protocol == TCP){
-            // 0000 0000
-            // 0000 0100  // reset 
-            // 0000 0001  // sin 
-            if(((pacInfo->cumulTcpOr & 4) > 0) || ((pacInfo->cumulTcpOr & 1) > 0)){
-                updateHeader(flowL->current->data->nfheader, *totalFlows);
-                if(sendUdpFlow(flowL->current->data, collector) == false){
-                    deleteAllNodes(flowL);
+            if ((temp = findIfExists(flowL, pacInfo)) != NULL){
+                // 0000 0000
+                // 0000 0100  // reset 
+                // 0000 0001  // sin 
+                 if (((temp->data->nfpayload->tcpFlags & 4 ) > 0) || ((temp->data->nfpayload->tcpFlags & 1) > 0)){
+                    
+                    deleteAndSend(flowL, collector, totalFlows, temp);
+                    continue;
                 }
-                deleteNode(flowL, flowL->current);
-                continue;
             }
         }
+
+        if (exitst == true)
+            continue;
 
         // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize)

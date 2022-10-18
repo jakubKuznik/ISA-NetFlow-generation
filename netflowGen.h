@@ -160,6 +160,12 @@ void deleteNode(flowList *flowL, node *node);
  */
 void deleteAllNodes(flowList *fl);
 
+/**
+ * @brief Delete and send the node  
+ * 
+ */
+bool deleteAndSend(flowList *flowL, struct sockaddr_in *collector, \
+     uint32_t *totalFlows, node *delete);
 
 
 #endif

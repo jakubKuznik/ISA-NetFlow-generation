@@ -102,8 +102,13 @@ error4:
 bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
 
     
-    char *tokenIp = strtok(in, ":");
-    char *tokenPort = strtok(NULL, ":");
+    char *tokenIp = NULL;
+    char *tokenPort = NULL; 
+    
+    if ((tokenIp = strtok(in, ":")) == NULL)
+        return false;
+    if ((tokenPort = strtok(NULL, ":")) == NULL)
+        return false;
 
     // error multiple ':'
     if(strtok(NULL, ":") != NULL)
