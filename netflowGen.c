@@ -409,8 +409,8 @@ void htonsFlow(netFlow *nf){
     nf->nfheader->unixSecs          = htonl(nf->nfheader->unixSecs);
     nf->nfheader->unixNSecs         = htonl(nf->nfheader->unixNSecs);
     nf->nfheader->flowSequence      = htonl(nf->nfheader->flowSequence);
-    nf->nfheader->engineType        = htons(nf->nfheader->engineType);
-    nf->nfheader->engineId          = htons(nf->nfheader->engineId);
+    nf->nfheader->engineType        = nf->nfheader->engineType;
+    nf->nfheader->engineId          = nf->nfheader->engineId;
     nf->nfheader->samplingInterval  = htons(nf->nfheader->samplingInterval);
 
     nf->nfpayload->srcAddr          = htonl(nf->nfpayload->srcAddr);
@@ -424,14 +424,14 @@ void htonsFlow(netFlow *nf){
     nf->nfpayload->last             = htonl(nf->nfpayload->last);
     nf->nfpayload->srcPort          = htons(nf->nfpayload->srcPort);
     nf->nfpayload->dstPort          = htons(nf->nfpayload->dstPort);
-    nf->nfpayload->pad1             = htons(nf->nfpayload->pad1);
+    nf->nfpayload->pad1             = nf->nfpayload->pad1;
     nf->nfpayload->tcpFlags         = nf->nfpayload->tcpFlags;
-    nf->nfpayload->prot             = htons(nf->nfpayload->prot);
-    nf->nfpayload->tos              = htons(nf->nfpayload->tos);
+    nf->nfpayload->prot             = nf->nfpayload->prot;
+    nf->nfpayload->tos              = nf->nfpayload->tos;
     nf->nfpayload->srcAs            = htons(nf->nfpayload->srcAs);
     nf->nfpayload->dstAs            = htons(nf->nfpayload->dstAs);
-    nf->nfpayload->srcMask          = htons(nf->nfpayload->srcMask);
-    nf->nfpayload->dstMask          = htons(nf->nfpayload->dstMask);
+    nf->nfpayload->srcMask          = nf->nfpayload->srcMask;
+    nf->nfpayload->dstMask          = nf->nfpayload->dstMask;
     nf->nfpayload->pad2             = htons(nf->nfpayload->pad2);
 }
 
