@@ -7,10 +7,11 @@
 #ifndef UDP_H
 #define UDP_H
 
-
-
 #include "flow.h"
 #include "netflowGen.h"
+
+#define SOCKET_ERROR -1
+
 
 /**
  * @brief Init server where flow will be send. sets ip and port 
@@ -20,10 +21,13 @@
 struct sockaddr_in * initServer(struct set settings);
 
 
-bool sendUdpFlow(struct netFlow *nf, struct sockaddr_in *server);
+// function is inspirated from:  (c) Petr Matousek, 2016
+bool sendUdpFlow(netFlow * nf, int clientSock);
+
 
 /**
- * @brief establish connection with server using  connect() 
+ * @brief establish connection with server using  connect()
+ *  will set the global variable clientSock 
  * 
  * @param server collector  
  * @return client socket number

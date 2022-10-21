@@ -91,17 +91,17 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo);
  * @brief Check if some of flows are to old, if yes export and delete them  
  * 
  * @param flowL list of all flows 
- * @param packetTime time for checking 
+ * @param packetTimeSec time for checking 
  * @param timer -a 
  * @param set all the settings 
  * @param collector colector ip add 
  * @param totalFlows each time flow is exported increment this  
+ * @param clientSoc  
  * @return true if ok
  * @return false if error 
  */
 bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
-     struct sockaddr_in *collector, uint32_t *totalFlows);
-
+        uint32_t *totalFlows, int clientSoc);
 
 /**
  * @brief Check if some of flows are to old, if yes export and delete them  
@@ -112,23 +112,23 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
  * @param set all the settings 
  * @param collector colector ip add 
  * @param totalFlows each time flow is exported increment this  
+ * @param clientSoc  
  * @return true if ok
  * @return false if error 
  */
 bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
-     struct sockaddr_in *collector, uint32_t *totalFlows);
+    uint32_t *totalFlows, int clientSoc);
 
 /**
  * @brief delete oldest flow in list
  * @param flowL list of all flows 
  * @param collector collector ip 
  * @param totalFlows number of flows already exported 
+ * @param clientSoc  
  * @return true if ok 
- * 
  */
-bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
-     uint32_t *totalFlows);
-
+bool deleteOldest(flowList *flowL, \
+     uint32_t *totalFlows, int clientSoc);
 
 /**
  * @brief Create a new node (flow) from packet and return pointer to it 
@@ -162,10 +162,9 @@ void deleteAllNodes(flowList *fl);
 
 /**
  * @brief Delete and send the node  
- * 
  */
-bool deleteAndSend(flowList *flowL, struct sockaddr_in *collector, \
-     uint32_t *totalFlows, node *delete);
+bool deleteAndSend(flowList *flowL, \
+     uint32_t *totalFlows, node *delete, int clientSoc);
 
 
 #endif

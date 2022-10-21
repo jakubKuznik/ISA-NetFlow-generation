@@ -24,7 +24,12 @@ int main(int argc, char *argv[]) {
     settings = parseArgs(argc, argv);
     // buffer that is used in pcap struct  
     char pcapBuff[MY_PCAP_BUFF_SIZE];
+    
     pcap_t *pcap;
+    
+    // socket on client side 
+    int clientSock = 0;
+
     // basic info about packet that is need for netflow 
     packetInfo * pacInfo = malloc(sizeof(packetInfo));
     // list with all the flows 
@@ -43,6 +48,11 @@ int main(int argc, char *argv[]) {
     if (collector == NULL)
         goto error3;
 
+    // start connection between sender and collector 
+    // socket will be stored in global variable clientSock  
+    if ((clientSock = startConnection(*collector)) == SOCKET_ERROR)
+        goto error5;
+
     node *temp;
 
     while(true){
@@ -57,11 +67,13 @@ int main(int argc, char *argv[]) {
             continue;
         
         // apply active timer -a -> clean flows 
-        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, collector, totalFlows) == false)
+        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, \
+            totalFlows, clientSock) == false)
             goto error4;
 
         // apply inactive timer -i -> clean flows
-        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, collector, totalFlows) == false)
+        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, \
+            totalFlows, clientSock) == false)
             goto error4;
 
         // if flow for that already exist     
@@ -78,7 +90,7 @@ int main(int argc, char *argv[]) {
                 // 0000 0001  // sin 
                  if (((temp->data->nfpayload->tcpFlags & 4 ) > 0) \
                    || ((temp->data->nfpayload->tcpFlags & 1) > 0)){
-                    deleteAndSend(flowL, collector, totalFlows, temp);
+                    deleteAndSend(flowL, totalFlows, temp, clientSock);
                 }
             }
         }
@@ -89,7 +101,7 @@ int main(int argc, char *argv[]) {
 
         // delete the oldest one if cache is full  
         if (flowL->size >= settings.cacheSize)
-            deleteOldest(flowL, collector, totalFlows);
+            deleteOldest(flowL, totalFlows, clientSock);
 
         if (createFlow(flowL, pacInfo) == false)
             goto error3;     
@@ -97,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     //export all 
     while (flowL->first != NULL){
-        deleteOldest(flowL, collector, totalFlows);
+        deleteOldest(flowL, totalFlows, clientSock);
     }
 
     free(pacInfo);
@@ -131,6 +143,12 @@ error4:
     pcap_close(pcap);
     free(collector);
     fprintf(stderr, "ERROR\n");
+    return 2;
+
+error5:
+    free(pacInfo);
+    pcap_close(pcap);
+    fprintf(stderr, "ERROR can't create socket\n");
     return 2;
 
 

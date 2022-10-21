@@ -187,18 +187,19 @@ void updatePayload(NFPayload *payload, struct packetInfo packet){
  * @param set all the settings 
  * @param collector colector ip add 
  * @param totalFlows each time flow is exported increment this  
+ * @param clientSoc  
  * @return true if ok
  * @return false if error 
  */
 bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
-                    struct sockaddr_in *collector, uint32_t *totalFlows){
+        uint32_t *totalFlows, int clientSoc){
     node* node = flowL->first;
     struct node* temp = NULL;
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->first) > timer){
             temp = node->next;
-            deleteAndSend(flowL, collector, totalFlows, node);
+            deleteAndSend(flowL, totalFlows, node, clientSoc);
             node = temp;
             continue;
         }
@@ -216,18 +217,19 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
  * @param set all the settings 
  * @param collector colector ip add 
  * @param totalFlows each time flow is exported increment this  
+ * @param clientSoc  
  * @return true if ok
  * @return false if error 
  */
 bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
-                    struct sockaddr_in *collector, uint32_t *totalFlows){
+    uint32_t *totalFlows, int clientSoc){
     node* node = flowL->first;
     struct node* temp = NULL;
     while (node != NULL){
         
         if ((packetTimeSec - node->data->nfpayload->last) > timer){
             temp = node->next;
-            deleteAndSend(flowL, collector, totalFlows, node);
+            deleteAndSend(flowL, totalFlows, node, clientSoc);
             node = temp;
             continue;
         }
@@ -240,15 +242,15 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
  * @brief Delete and send the node  
  * 
  */
-bool deleteAndSend(flowList *flowL, struct sockaddr_in *collector, \
-     uint32_t *totalFlows, node *delete){
+bool deleteAndSend(flowList *flowL, \
+     uint32_t *totalFlows, node *delete, int clientSoc){
     if (flowL->first == NULL)
         return true;
 
 
     (*totalFlows)++;
     updateHeader(delete->data->nfheader, *totalFlows);
-    if(sendUdpFlow(delete->data, collector) == false){
+    if(sendUdpFlow(delete->data, clientSoc) == false){
         deleteAllNodes(flowL);
         return false;
     }
@@ -262,11 +264,11 @@ bool deleteAndSend(flowList *flowL, struct sockaddr_in *collector, \
  * @param flowL list of all flows 
  * @param collector collector ip 
  * @param totalFlows number of flows already exported 
+ * @param clientSoc  
  * @return true if ok 
- * 
  */
-bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
-     uint32_t *totalFlows){
+bool deleteOldest(flowList *flowL, \
+     uint32_t *totalFlows, int clientSoc){
     if (flowL->first == NULL)
         return true;
 
@@ -283,7 +285,7 @@ bool deleteOldest(flowList *flowL, struct sockaddr_in *collector, \
 
         node = node->next;
     }
-    deleteAndSend(flowL, collector, totalFlows, oldNode);
+    deleteAndSend(flowL, totalFlows, oldNode, clientSoc);
     
     return true; 
 }

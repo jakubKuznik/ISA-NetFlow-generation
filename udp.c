@@ -8,10 +8,10 @@
 
 
 // function is inspirated from:  (c) Petr Matousek, 2016
-bool sendUdpFlow(netFlow * nf, struct sockaddr_in *server){
+bool sendUdpFlow(netFlow * nf, int clientSock){
     int i;
 
-    int clientSock = startConnection(*server);
+    //int clientSock = startConnection(*server);
 
 
     char message[NF_HEADER_SIZE + NF_PAYLOA_SIZE] = "";
@@ -35,10 +35,9 @@ bool sendUdpFlow(netFlow * nf, struct sockaddr_in *server){
   return true; 
 }
 
-
-
 /**
- * @brief establish connection with server using  connect() 
+ * @brief establish connection with server using  connect()
+ *  will set the global variable clientSock 
  * 
  * @param server collector  
  * @return client socket number
