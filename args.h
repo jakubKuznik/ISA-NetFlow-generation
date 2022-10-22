@@ -4,11 +4,14 @@
 // Compiled:    gcc 9.9.3.0
 // Read file arguments 
 
-#pragma once
+
+#ifndef ARGS_H
+#define ARGS_H
 
 #include "pcapFile.h"
-#include "struct.h"
+#include "structurik.h"
 #include "flow.h"
+
 
 /**
  * @brief Parse arguments and set settings variable 
@@ -51,4 +54,6 @@ bool parseNumUINT32(char *s, uint32_t *out);
  * 
  * @return false if not succesfull.
  */
-bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort);
+bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort); 
+
+#endif

@@ -11,12 +11,8 @@
 bool sendUdpFlow(netFlow * nf, int clientSock){
     int i;
 
-    //int clientSock = startConnection(*server);
-
-
     char message[NF_HEADER_SIZE + NF_PAYLOA_SIZE] = "";
     char * pt = &message[0]; // pointer to first element of array 
-
 
     htonsFlow(nf);
     //nf->nfheader->count = htons(1);

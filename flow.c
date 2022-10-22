@@ -165,7 +165,7 @@ error5:
 struct set defaultSettings(){
     struct set setNew;
     setNew.inputFile      = NULL;
-    setNew.collectorIp    = DEFAULT_IP;
+    setNew.collectorIp    = htonl((uint32_t)DEFAULT_IP);
     setNew.collectorPort  = DEFAULT_PORT;
     setNew.timerActive    = DEFAULT_TIMER;
     setNew.interval       = DEFAULT_INTERVAL;

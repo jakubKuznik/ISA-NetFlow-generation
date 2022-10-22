@@ -128,8 +128,8 @@ packetInfo tcpPacketInfo(const u_char *frame){
   pacInfo.layer3Size  = ntohl(ipHeader->ip_hl);
   pacInfo.packetSize  = ntohs(ipHeader->ip_len);
 
-  pacInfo.srcPort     = ntohs(tcpHeader->source);
-  pacInfo.dstPort     = ntohs(tcpHeader->dest);
+  pacInfo.srcPort     = ntohs(tcpHeader->th_sport);
+  pacInfo.dstPort     = ntohs(tcpHeader->th_dport);
 
   pacInfo.cumulTcpOr = tcpHeader->th_flags;
 
@@ -157,8 +157,8 @@ packetInfo udpPacketInfo(const u_char *frame){
   pacInfo.layer3Size  = ntohl(ipHeader->ip_hl);
   pacInfo.packetSize  = ntohs(ipHeader->ip_len);
   
-  pacInfo.srcPort     = ntohs(udpHeader->source);
-  pacInfo.dstPort     = ntohs(udpHeader->dest);
+  pacInfo.srcPort     = ntohs(udpHeader->uh_sport);
+  pacInfo.dstPort     = ntohs(udpHeader->uh_dport);
   pacInfo.cumulTcpOr  = 0;
 
   return pacInfo; 

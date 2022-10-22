@@ -7,9 +7,10 @@
 #ifndef NETFLOW_GEN_H
 #define NETFLOW_GEN_H
 
+
 #include "pcapFile.h"
+#include "structurik.h"
 #include "udp.h"
-#include "struct.h"
 
 #define NF_VERSION 5
 #define UNKNOWN 0

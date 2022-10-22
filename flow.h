@@ -7,7 +7,6 @@
 #ifndef FLOW_H 
 #define FLOW_H
 
-#pragma once
 
 // normal libraries 
 #include <stdio.h>
@@ -24,8 +23,6 @@
 #include <netinet/if_ether.h> //ethernet and arp frame 
 #include <netinet/ip_icmp.h>
 #include <netinet/ip6.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
 #include <netdb.h>
 #include <pcap/pcap.h>
 

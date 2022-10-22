@@ -4,6 +4,11 @@
 // Compiled:    gcc 9.9.3.0
 // header file for pcapFile.c 
 
+
+#ifndef __FAVOR_BSD
+#define __FAVOR_BSD
+#endif
+
 #ifndef PCAP_H
 #define PCAP_H
 
@@ -17,7 +22,12 @@
 #include <netinet/udp.h>
 #include <pcap/pcap.h>
 
-#include "struct.h"
+
+#include "structurik.h"
+
+
+
+
 
 #define ICMP 1 // wiki ip paket sekce data 
 #define TCP 6
@@ -25,6 +35,7 @@
 #define UNKNOWN_PROTOCOL 0
 
 #define ETH_HEAD_SIZE 14
+
 
 
 /**

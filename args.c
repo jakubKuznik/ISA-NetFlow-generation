@@ -103,6 +103,7 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
     char *tokenIp = NULL;
     char *tokenPort = NULL; 
 
+
     if ((tokenIp = strtok(in, ":")) == NULL)
         return false;
     // if port is not specified then use 2055
@@ -116,9 +117,12 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
 
             memcpy(&(*colIp), lh->h_addr, lh->h_length);
         }
-        *colPort = htons((uint16_t)DEFAULT_PORT);
+        *colPort = (uint16_t)DEFAULT_PORT;
+        *colPort = htons(*colPort);
+        *colIp   = htons(*colIp);
         return true;
     }
+
 
     // error multiple ':'
     if(strtok(NULL, ":") != NULL)
@@ -137,7 +141,8 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
         return false;
 
     *colPort = htons(*colPort);
-    
+    *colIp   = htons(*colIp);
+
     return true;
 }
 
@@ -156,7 +161,7 @@ bool parseNumUINT16(char *s, uint16_t *out){
             return false;
         }
         else{
-            *out = (u_int16_t) number;
+            *out = htons((u_int16_t) number);
             return true;
         }
     } 
@@ -180,6 +185,7 @@ bool parseNumUINT32(char *s, uint32_t *out){
         }
         else{
             *out = (u_int32_t) number;
+            *out = htons(*out);
             return true;
         }
     } 

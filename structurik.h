@@ -1,17 +1,18 @@
 // Solution for ISA-NetFlow-generation, 25.9.2022
-// File:        struct.h 
+// File:        structurik.h 
 // Author:      Jakub Kuzník, FIT
 // Compiled:    gcc 9.9.3.0
 // contain structs  
+
+#ifndef STRUCT_H 
+#define STRUCT_H
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
-#define __FAVOR_BSD
-
-#pragma once
 
 
 /**
@@ -164,3 +165,5 @@ struct set{
 };
 
 //typedef struct set set;
+
+#endif
