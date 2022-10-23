@@ -1,0 +1,36 @@
+.TH flow 1 
+.SH NAME
+flow \- generate netflows packets from pcap 
+.SH SYNOPSIS
+.B flow 
+[\fB\-f\fR \fIFILENAME\fR]
+[\fB\-c\fR \fICOLLECTOR[:PORT]\fR]
+[\fB\-i\fR \fITIMER\fR]
+[\fB\-a\fR \fITIMER\fR]
+[\fB\-m\fR \fICOUNT\fR]
+[\fB\-h\fR\fI\fR]
+.SH DESCRIPTION
+.B flow 
+Generate NetFlow packets from pcap. Packets are sent to the collector which can be specified. It processes TCP, UDP, and ICMP. Flow connection will be exported whenever the TCP fin or rst flag occurs or if the inactive or active timer applies or if the flow cache is full the oldest flow will be exported. 
+
+The inactive timer is applied whenever the last packet in flow was not there for the inactive timer period. 
+The active timer is applied whenever the last first packet in flow was not there for the active timer period. 
+.SH OPTIONS
+.TP
+.BR \-f " " FILENAME\fR
+Set the input file that has to be pcap. Default one is stdin.
+.TP
+.BR \-c " " COLECTOR[:PORT] 
+Set the destination address of netflow collector, it could be both domain name or ip adress. Default is 127.0.0.1 and port 2055.
+.TP
+.BR \-i " " TIMER\fR
+Set the inactive timer in seconds. Default is 10s.
+.TP
+.BR \-a " " TIMER\fR
+Set the active timer in seconds. Default is 10s.
+.TP
+.BR \-m " " TIMER\fR
+Set the size of flow cache. That means how many flows can program handle at once.  Default is 1024.
+.TP
+.BR \-h \fR
+Print help message.

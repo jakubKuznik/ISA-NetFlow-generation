@@ -1,66 +1,38 @@
 # ISA-NetFlow-generation
 
 
-zadani:
+##NAME
+       flow - generate netflows packets from pcap
 
-Popis:
-V rámci projektu implementujte NetFlow exportér, který ze zachycených síťových dat ve formátu pcap vytvoří záznamy NetFlow, které odešle na kolektor.
+##SYNOPSIS
+       flow [-f FILENAME] [-c COLLECTOR[:PORT]] [-i TIMER] [-a TIMER] [-m COUNT] [-h]
 
-Použití:
-Program musí podporovat následující syntax pro spuštění:
+##DESCRIPTION
+       flow  Generate  NetFlow packets from pcap. Packets are sent to the collector which can be specified. It pro‐
+       cesses TCP, UDP, and ICMP. Flow connection will be exported whenever the TCP fin or rst flag  occurs  or  if
+       the inactive or active timer applies or if the flow cache is full the oldest flow will be exported.
 
-./flow [-f <file>] [-c <netflow_collector>[:<port>]] [-a <active_timer>] [-i <inactive_timer>] [-m <count>]
+       The  inactive timer is applied whenever the last packet in flow was not there for the inactive timer period.
+       The active timer is applied whenever the last first packet in flow was not there for the  active  timer  pe‐
+       riod.
 
-kde
+##OPTIONS
+       -f FILENAME
+              Set the input file that has to be pcap. Default one is stdin.
 
--f <file> jméno analyzovaného souboru nebo STDIN,
+       -c COLECTOR[:PORT]
+              Set  the destination address of netflow collector, it could be both domain name or ip adress. Default
+              is 127.0.0.1 and port 2055.
 
--c <neflow_collector:port> IP adresa, nebo hostname NetFlow kolektoru. volitelně i UDP port (127.0.0.1:2055, pokud není specifikováno),
+       -i TIMER
+              Set the inactive timer in seconds. Default is 10s.
 
--a <active_timer> - interval v sekundách, po kterém se exportují aktivní záznamy na kolektor (60, pokud není specifikováno),
+       -a TIMER
+              Set the active timer in seconds. Default is 10s.
 
--i <seconds> - interval v sekundách, po jehož vypršení se exportují neaktivní záznamy na kolektor (10, pokud není specifikováno),
+       -m TIMER
+              Set the size of flow cache. That means how many flows can program handle at once.  Default is 1024.
 
--m <count> - velikost flow-cache. Při dosažení max. velikosti dojde k exportu nejstaršího záznamu v cachi na kolektor (1024, pokud není specifikováno).
+       -h     Print help message.
 
-Všechny parametry jsou brány jako volitelné. Pokud některý z parametrů není uveden, použije se místo něj výchozí hodnota.
 
-Příklad použití:
-
-./flow -f input.pcap -c 192.168.0.1:2055
-
-Implementace:
-
-Implementujte v jazyku C/C++, za pomoci knihovny libpcap.
-
-Upřesnění zadání:
-
-Jako export stačí použít NetFlow v5. Pokud byste implementovali v9 se šablonami, bude to bonusově zohledněno v hodnocení projektu.
-Pro vytváření flow stačí podpora protokolů TCP, UDP, ICMP.
-Informace, které neznáte (srcAS, dstAS, next-hop, aj.) nastavte jako nulové.
-Při exportování používejte původní časové značky zachycené komunikace.
-Pro testování můžete využít nástroje ze sady nfdump (nfdump, nfcapd, nfreplay, ...).
-Pro vytvoření vlastního testovacího souboru můžete použít program tcpdump.
-Exportované NetFlow data by měla být čitelná nástrojem nfdump.
-Odevzdání:
-
-Odevzdaný projekt musí obsahovat:
-
-soubor se zdrojovým kódem,
-funkční Makefile pro překlad zdrojového souboru,
-dokumentaci (soubor manual.pdf), která bude obsahovat uvedení do problematiky, návrhu aplikace, popis implementace, základní informace o programu, návod na použití. V dokumentaci se očekává následující: titulní strana, obsah, logické strukturování textu, přehled nastudovaných informací z literatury, popis zajímavějších pasáží implementace, použití vytvořených programů a literatura.
-soubor flow.1 ve formátu a syntaxi manuálové stránky - viz https://liw.fi/manpages/
-Vypracovaný projekt uložený v archívu .tar a se jménem xlogin00.tar odevzdejte elektronicky přes IS. Soubor nekomprimujte.
-
-Spuštění, testování:
-
-Všechny nezbytné úkony pro přípravu spuštění Vaší aplikace musí proběhnout zadáním příkazu make, ať už si vyberete kterýkoliv jazyk.
-
-Doporučená literatura:
-
-Studijní materiály k předmětu ISA - NetFlow
-NetFlow na Wikipedia.org - https://en.wikipedia.org/wiki/NetFlow
-Formát NetFlow datagramu - http://www.cisco.com/c/en/us/td/docs/net_mgmt/netflow_collection_engine/3-6/user/guide/format.html#wp1003394 [Table B-3 a Table B-4]
-man nfdump
-man nfcapd
-man libpcap
