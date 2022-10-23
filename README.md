@@ -1,13 +1,13 @@
 # ISA-NetFlow-generation
 
 
-##NAME
+## NAME
        flow - generate netflows packets from pcap
 
-##SYNOPSIS
+## SYNOPSIS
        flow [-f FILENAME] [-c COLLECTOR[:PORT]] [-i TIMER] [-a TIMER] [-m COUNT] [-h]
 
-##DESCRIPTION
+## DESCRIPTION
        flow  Generate  NetFlow packets from pcap. Packets are sent to the collector which can be specified. It pro‐
        cesses TCP, UDP, and ICMP. Flow connection will be exported whenever the TCP fin or rst flag  occurs  or  if
        the inactive or active timer applies or if the flow cache is full the oldest flow will be exported.
@@ -16,7 +16,7 @@
        The active timer is applied whenever the last first packet in flow was not there for the  active  timer  pe‐
        riod.
 
-##OPTIONS
+## OPTIONS
        -f FILENAME
               Set the input file that has to be pcap. Default one is stdin.
 
