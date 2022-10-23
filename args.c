@@ -118,8 +118,7 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
             memcpy(&(*colIp), lh->h_addr, lh->h_length);
         }
         *colPort = (uint16_t)DEFAULT_PORT;
-        *colPort = htons(*colPort);
-        *colIp   = htons(*colIp);
+        *colIp   = htonl(*colIp);
         return true;
     }
 
@@ -141,7 +140,7 @@ bool parseCollector(char *in, uint32_t *colIp, uint16_t *colPort){
         return false;
 
     *colPort = htons(*colPort);
-    *colIp   = htons(*colIp);
+    *colIp   = htonl(*colIp);
 
     return true;
 }

@@ -74,9 +74,9 @@ struct sockaddr_in * initServer(struct set settings){
         return NULL;
 
     server->sin_family = AF_INET;
-    server->sin_addr.s_addr = settings.collectorIp;
+    server->sin_addr.s_addr = ntohl(settings.collectorIp);
 
     // server port (network byte order)
-    server->sin_port = htons(settings.collectorPort);
+    server->sin_port = ntohs(settings.collectorPort);
     return server;
 }
