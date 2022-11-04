@@ -54,32 +54,47 @@ int main(int argc, char *argv[]) {
         goto error5;
 
     node *temp;
+    uint64_t firstPacTime, currentTime; 
+    uint32_t sysUpTime;
+    packetInfo lastValid;
 
+    // time of first packet in milicedonds 
+    bool first = false;
     while(true){
         // if flow already exist story it to temp
         temp =  NULL;
 
         // read packet 
+        lastValid = *pacInfo;
         *pacInfo = proccessPacket(pcap);
         if (pacInfo->ok == false)
             break;
         if (pacInfo->protocol == UNKNOWN_PROTOCOL)
             continue;
-        
+
+        // store time from first packet 
+        if (first == false){
+            firstPacTime = (pacInfo->timeSec)*1000 + (pacInfo->timeNano)/1000000;
+            first = true;
+        }
+        currentTime = (pacInfo->timeSec)*1000 + (pacInfo->timeNano)/1000000;
+        sysUpTime = getSysUpTime(currentTime, firstPacTime);
+
+
         // apply active timer -a -> clean flows 
-        if (applyActiveTimer(flowL, pacInfo->timeSec, settings.timerActive, \
-            totalFlows, clientSock) == false)
+        if (applyActiveTimer(flowL, settings.timerActive, \
+            totalFlows, clientSock, sysUpTime, *pacInfo) == false)
             goto error4;
 
         // apply inactive timer -i -> clean flows
-        if (applyInactiveTimer(flowL, pacInfo->timeSec, settings.interval, \
-            totalFlows, clientSock) == false)
+        if (applyInactiveTimer(flowL, settings.interval, \
+            totalFlows, clientSock, sysUpTime, *pacInfo) == false)
             goto error4;
 
         // if flow for that already exist     
         if ((temp = findIfExists(flowL, pacInfo)) != NULL){
             flowL->current = temp;
-            updatePayload(temp->data->nfpayload, *pacInfo);
+            updatePayload(temp->data->nfpayload, *pacInfo, sysUpTime);
         }
 
         // if check tcp fin flag)        
@@ -90,7 +105,7 @@ int main(int argc, char *argv[]) {
                 // 0000 0001  // sin 
                  if (((temp->data->nfpayload->tcpFlags & 4 ) > 0) \
                    || ((temp->data->nfpayload->tcpFlags & 1) > 0)){
-                    deleteAndSend(flowL, totalFlows, temp, clientSock);
+                    deleteAndSend(flowL, totalFlows, temp, clientSock, sysUpTime, *pacInfo);
                 }
             }
         }
@@ -100,16 +115,17 @@ int main(int argc, char *argv[]) {
             continue;
 
         // delete the oldest one if cache is full  
-        if (flowL->size >= settings.cacheSize)
-            deleteOldest(flowL, totalFlows, clientSock);
+        if (flowL->size >= settings.cacheSize){
+            deleteOldest(flowL, totalFlows, clientSock, sysUpTime, *pacInfo);
+        }
 
-        if (createFlow(flowL, pacInfo) == false)
+        if (createFlow(flowL, pacInfo, sysUpTime) == false)
             goto error3;     
     }
 
     //export all 
     while (flowL->first != NULL){
-        deleteOldest(flowL, totalFlows, clientSock);
+        deleteOldest(flowL, totalFlows, clientSock, sysUpTime, lastValid);
     }
 
     free(pacInfo);
@@ -154,6 +170,7 @@ error5:
 
 }
 
+
 /**
  * @brief set default program settings in global var. settings 
  * -f input file    [DEFAULT NULL (STDIN)] {inputFile}
@@ -173,3 +190,15 @@ struct set defaultSettings(){
     return setNew;
 }
 
+
+/**
+ * @brief Get the SysUpTime. First pakcet time - current packet time castet to 32 bit  
+ * 
+ * @param current currently proccesed packet  
+ * @param first first packet 
+ * @return uint32_t 
+ */
+uint32_t getSysUpTime(uint64_t current, uint64_t first){
+    current = current - first;
+    return (uint32_t)current;
+}

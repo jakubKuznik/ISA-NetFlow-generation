@@ -38,7 +38,7 @@ flowList * initFlowList();
  * @return true 
  * @return false if error  
  */
-bool createFlow(flowList *flowL, struct packetInfo *pacInfo);
+bool createFlow(flowList *flowL, struct packetInfo *pacInfo, uint32_t sysUpTime);
 
 /**
  * @brief Free initFlowList struct 
@@ -51,7 +51,7 @@ void freeInitFlowList(flowList *flowL);
  * @param payload 
  * @param packet 
  */
-void updatePayload(NFPayload *payload, struct packetInfo packet);
+void updatePayload(NFPayload *payload, struct packetInfo packet, uint32_t sysUpTime);
 
 /**
  * @brief Create a netflow Payload 
@@ -61,7 +61,7 @@ void updatePayload(NFPayload *payload, struct packetInfo packet);
  * @return NFPayload* 
  * @return NULL if not succ 
  */
-NFPayload *createPayload(struct packetInfo packet);
+NFPayload *createPayload(struct packetInfo packet, uint32_t sysUpTime);
 
 /**
  * @brief Create a flow header
@@ -76,7 +76,7 @@ NFHeader *createHeader(struct packetInfo packet);
  * 
  * @param header 
  */
-void updateHeader(NFHeader *header, uint32_t totalFlows);
+void updateHeader(NFHeader *header, uint32_t totalFlows, uint32_t sysUpTime, packetInfo currentPacket);
 
 /**
  * @brief find if packet is related to some existing flow 
@@ -101,8 +101,8 @@ node *findIfExists(flowList * flowL, struct packetInfo * pacInfo);
  * @return true if ok
  * @return false if error 
  */
-bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
-        uint32_t *totalFlows, int clientSoc);
+bool applyActiveTimer(flowList *flowL, uint32_t timer, \
+        uint32_t *totalFlows, int clientSoc, uint32_t sysUpTime, packetInfo currentPacket);
 
 /**
  * @brief Check if some of flows are to old, if yes export and delete them  
@@ -117,8 +117,8 @@ bool applyActiveTimer(flowList *flowL, uint32_t packetTimeSec, uint32_t timer, \
  * @return true if ok
  * @return false if error 
  */
-bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer, \
-    uint32_t *totalFlows, int clientSoc);
+bool applyInactiveTimer(flowList *flowL, uint32_t timer, \
+    uint32_t *totalFlows, int clientSoc, uint32_t sysUpTime, packetInfo currentPacket);
 
 /**
  * @brief delete oldest flow in list
@@ -129,7 +129,7 @@ bool applyInactiveTimer(flowList *flowL, uint32_t packetTimeSec ,uint32_t timer,
  * @return true if ok 
  */
 bool deleteOldest(flowList *flowL, \
-     uint32_t *totalFlows, int clientSoc);
+     uint32_t *totalFlows, int clientSoc, uint32_t sysUpTime, packetInfo currentPacket);
 
 /**
  * @brief Create a new node (flow) from packet and return pointer to it 
@@ -138,7 +138,7 @@ bool deleteOldest(flowList *flowL, \
  * @return node * 
  * @return NULL if error 
  */
-node *createNode(struct packetInfo *pacInfo);
+node *createNode(struct packetInfo *pacInfo, uint32_t sysUpTime);
 
 
 /**
@@ -165,7 +165,7 @@ void deleteAllNodes(flowList *fl);
  * @brief Delete and send the node  
  */
 bool deleteAndSend(flowList *flowL, \
-     uint32_t *totalFlows, node *delete, int clientSoc);
+     uint32_t *totalFlows, node *delete, int clientSoc, uint32_t sysUpTime, packetInfo currentPacket);
 
 
 #endif

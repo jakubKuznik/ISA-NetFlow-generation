@@ -94,16 +94,16 @@ packetInfo proccessPacket(pcap_t *pcap){
  */
 packetInfo icmpPacketInfo(const u_char *frame){
   packetInfo pacInfo = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true};
-  struct ip *ip_header = (struct ip*)(frame + ETH_HEAD_SIZE);
+  struct ip *ipHeader = (struct ip*)(frame + ETH_HEAD_SIZE);
 
   pacInfo.protocol    = ICMP;
-  pacInfo.tos         = ntohs(ip_header->ip_tos);
-  pacInfo.srcAddr     = ntohl(ip_header->ip_src.s_addr);
-  pacInfo.dstAddr     = ntohl(ip_header->ip_dst.s_addr);
+  pacInfo.tos         = ipHeader->ip_tos;
+  pacInfo.srcAddr     = ntohl(ipHeader->ip_src.s_addr);
+  pacInfo.dstAddr     = ntohl(ipHeader->ip_dst.s_addr);
   pacInfo.srcPort     = 0;
   pacInfo.dstPort     = 0;
-  pacInfo.layer3Size  = ntohl(ip_header->ip_hl);
-  pacInfo.packetSize  = ntohs(ip_header->ip_len);
+  pacInfo.layer3Size  = ntohl(ipHeader->ip_hl);
+  pacInfo.packetSize  = ntohs(ipHeader->ip_len);
   pacInfo.cumulTcpOr  = 0;
 
   return pacInfo; 
@@ -122,7 +122,7 @@ packetInfo tcpPacketInfo(const u_char *frame){
   struct tcphdr *tcpHeader = (struct tcphdr*)(frame + ETH_HEAD_SIZE + (ipHeader->ip_hl*4));
 
   pacInfo.protocol    = TCP;
-  pacInfo.tos         = ntohs(ipHeader->ip_tos);
+  pacInfo.tos         = ipHeader->ip_tos;
   pacInfo.srcAddr     = ntohl(ipHeader->ip_src.s_addr);
   pacInfo.dstAddr     = ntohl(ipHeader->ip_dst.s_addr);
   pacInfo.layer3Size  = ntohl(ipHeader->ip_hl);
@@ -151,7 +151,7 @@ packetInfo udpPacketInfo(const u_char *frame){
 
   
   pacInfo.protocol    = UDP;
-  pacInfo.tos         = ntohs(ipHeader->ip_tos);
+  pacInfo.tos         = ipHeader->ip_tos;
   pacInfo.srcAddr     = ntohl(ipHeader->ip_src.s_addr);
   pacInfo.dstAddr     = ntohl(ipHeader->ip_dst.s_addr);
   pacInfo.layer3Size  = ntohl(ipHeader->ip_hl);

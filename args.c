@@ -184,7 +184,6 @@ bool parseNumUINT32(char *s, uint32_t *out){
         }
         else{
             *out = (u_int32_t) number;
-            *out = htons(*out);
             return true;
         }
     } 

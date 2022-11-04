@@ -57,4 +57,13 @@
 struct set defaultSettings();
 
 
+/**
+ * @brief Get the SysUpTime. First pakcet time - current packet time castet to 32 bit  
+ * 
+ * @param current currently proccesed packet  
+ * @param first first packet 
+ * @return uint32_t 
+ */
+uint32_t getSysUpTime(uint64_t current, uint64_t first);
+
 #endif 
