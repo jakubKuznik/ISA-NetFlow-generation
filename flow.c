@@ -120,7 +120,21 @@ int main(int argc, char *argv[]) {
         }
 
         if (createFlow(flowL, pacInfo, sysUpTime) == false)
-            goto error3;     
+            goto error3;  
+        
+        // if check tcp fin flag)        
+        if (pacInfo->protocol == TCP){
+            if ((temp = findIfExists(flowL, pacInfo)) != NULL){
+                // 0000 0000
+                // 0000 0100  // reset 
+                // 0000 0001  // sin 
+                 if (((temp->data->nfpayload->tcpFlags & 4 ) > 0) \
+                   || ((temp->data->nfpayload->tcpFlags & 1) > 0)){
+                    deleteAndSend(flowL, totalFlows, temp, clientSock, sysUpTime, *pacInfo);
+                }
+            }
+        }
+           
     }
 
     //export all 
